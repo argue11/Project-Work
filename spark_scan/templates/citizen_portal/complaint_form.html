@@ -1,0 +1,83 @@
+{% extends 'citizen_portal/base.html' %}
+{% load static %}
+
+{% block title %}Report Complaint - KSEB{% endblock %}
+
+{% block content %}
+<div class="complaint-form">
+    <h2 class="text-center mb-20">Report Complaint</h2>
+    
+    <!-- Asset Information -->
+    <div class="asset-card">
+        <div class="asset-id">Asset ID: {{ pole.asset_id }}</div>
+        <div class="asset-type">{{ pole.get_asset_type_display }}</div>
+        {% if pole.location %}
+        <div class="asset-location mt-10">📍 {{ pole.location }}</div>
+        {% endif %}
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Safety Hazard Selection -->
+        <div class="form-group">
+            <label class="form-label">Safety Hazard</label>
+            <select name="safety_hazard" class="form-select" required>
+                <option value="">Select Hazard Type</option>
+                {% for value, label in safety_hazards %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Complaint Description -->
+        <div class="form-group">
+            <label class="form-label">Complaint Description</label>
+            <textarea 
+                name="description" 
+                class="form-textarea" 
+                placeholder="Describe the issue clearly...
+Example: The pole at the corner of Oak Street and 5th Ave is leaning dangerously, and there are exposed wires hanging low, sparking intermittently."
+                required
+            ></textarea>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="form-group">
+            <label class="form-label">Image Upload</label>
+            <div class="image-upload">
+                <label class="upload-box">
+                    <input type="file" name="images" accept="image/*" multiple hidden>
+                    <div class="upload-icon">📷</div>
+                    <div>Tap to add photos</div>
+                    <small>(JPG/PNG)</small>
+                </label>
+                <label class="upload-box">
+                    <input type="file" name="images" accept="image/*" multiple hidden>
+                    <div class="upload-icon">➕</div>
+                    <div>Add more photos</div>
+                    <small>(Optional)</small>
+                </label>
+            </div>
+        </div>
+
+        <!-- Mobile Number -->
+        <div class="form-group">
+            <label class="form-label">Mobile Number</label>
+            <input 
+                type="tel" 
+                name="mobile_number" 
+                class="form-input" 
+                placeholder="+91 9876543210"
+                pattern="[+0-9\s\-]{10,15}"
+                required
+            >
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">
+            Submit Complaint
+        </button>
+    </form>
+</div>
+{% endblock %}

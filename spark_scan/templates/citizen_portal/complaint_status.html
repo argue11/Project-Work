@@ -1,0 +1,140 @@
+{% extends 'citizen_portal/base.html' %}
+{% load static %}
+
+{% block title %}Complaint Status - KSEB{% endblock %}
+
+{% block content %}
+<div class="complaint-status">
+    <h2 class="text-center mb-20">Complaint Status</h2>
+    
+    <!-- Complaint Details -->
+    <div class="asset-card">
+        <div class="asset-id">Complaint ID: {{ complaint.complaint_id }}</div>
+        <div class="asset-type">Pole: {{ complaint.pole.asset_id }}</div>
+        <div class="asset-location">Hazard: {{ complaint.get_safety_hazard_display }}</div>
+    </div>
+
+    <!-- Status Timeline -->
+    <div class="status-timeline">
+        <h3 class="mb-20">Status Tracking</h3>
+        
+        <div class="timeline">
+            <div class="timeline-item {% if complaint.status != 'PENDING' %}completed{% endif %}">
+                <div class="timeline-marker">1</div>
+                <div class="timeline-content">
+                    <strong>Complaint Received</strong>
+                    <small>{{ complaint.created_at|date:"M d, Y H:i" }}</small>
+                </div>
+            </div>
+            
+            <div class="timeline-item {% if complaint.status in 'UNDER_REVIEW,ASSIGNED,IN_PROGRESS,RESOLVED' %}completed{% endif %}">
+                <div class="timeline-marker">2</div>
+                <div class="timeline-content">
+                    <strong>Under Review</strong>
+                    <small>KSEB team reviewing the issue</small>
+                </div>
+            </div>
+            
+            <div class="timeline-item {% if complaint.status in 'ASSIGNED,IN_PROGRESS,RESOLVED' %}completed{% endif %}">
+                <div class="timeline-marker">3</div>
+                <div class="timeline-content">
+                    <strong>Assigned to Technician</strong>
+                    <small>Field team dispatched</small>
+                </div>
+            </div>
+            
+            <div class="timeline-item {% if complaint.status in 'IN_PROGRESS,RESOLVED' %}completed{% endif %}">
+                <div class="timeline-marker">4</div>
+                <div class="timeline-content">
+                    <strong>Repair in Progress</strong>
+                    <small>Work underway</small>
+                </div>
+            </div>
+            
+            <div class="timeline-item {% if complaint.status == 'RESOLVED' %}completed{% endif %}">
+                <div class="timeline-marker">5</div>
+                <div class="timeline-content">
+                    <strong>Resolved</strong>
+                    <small>Issue fixed and verified</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Status -->
+    <div class="current-status mt-20">
+        <div class="status-badge status-{{ complaint.status|lower }}">
+            Current Status: <strong>{{ complaint.get_status_display }}</strong>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="text-center mt-20">
+        <a href="{% url 'citizen_portal:complaint_form' complaint.pole.asset_id %}" class="btn btn-primary">
+            Report Another Issue
+        </a>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e1e8ed;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.timeline-marker {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #bdc3c7;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    position: absolute;
+    left: -30px;
+    z-index: 2;
+}
+
+.timeline-item.completed .timeline-marker {
+    background: #27ae60;
+}
+
+.timeline-content {
+    margin-left: 20px;
+    flex: 1;
+}
+
+.status-badge {
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.status-pending { background: #fff3cd; color: #856404; }
+.status-under_review { background: #d1ecf1; color: #0c5460; }
+.status-assigned { background: #cce7ff; color: #004085; }
+.status-in_progress { background: #fff3cd; color: #856404; }
+.status-resolved { background: #d4edda; color: #155724; }
+.status-rejected { background: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
