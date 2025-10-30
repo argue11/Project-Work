@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KSEB Citizen Portal{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="{% static 'citizen_portal/images/kseb-logo.png' %}" alt="KSEB Logo" class="logo">
+            <h1>KSEB Citizen Portal</h1>
+        </header>
+        
+        <main class="main-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+        
+        <footer class="footer">
+            <p>&copy; 2024 Kerala State Electricity Board. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script src="{% static 'citizen_portal/js/script.js' %}"></script>
+</body>
+</html>

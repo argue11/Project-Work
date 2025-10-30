@@ -1,168 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Interactive Map Dashboard - Transparent Overlays</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Map Dashboard</title>
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-        }
+<!-- Custom CSS -->
+<link rel="stylesheet" href="/static/style.css">
 
-        /* Transparent smoky menu bar */
-        #top-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(40, 62, 81, 0.3); /* More transparent */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            color: white;
-            padding: 5px 20px;
-            height: 60px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.22);
-            position: relative;
-            z-index: 1000;
-        }
-        #logo {
-            display: flex;
-            align-items: center;
-            user-select: none;
-        }
-        #logo img {
-            height: 32px;
-            width: 32px;
-            margin-right: 12px;
-            filter: drop-shadow(0 0 1.5px rgba(0,0,0,0.7));
-        }
-        #logo span {
-            font-weight: 700;
-            font-size: 1.2em;
-            letter-spacing: 1px;
-        }
-        #search-container {
-            flex-grow: 1;
-            text-align: center;
-        }
-        #search-container input[type="search"] {
-            width: 50%;
-            max-width: 450px;
-            padding: 8px 14px;
-            border-radius: 25px;
-            border: none;
-            font-size: 17px;
-            outline: none;
-            box-shadow: 0 2px 5px rgb(0 0 0 / 0.15);
-            transition: box-shadow 0.3s ease;
-            background: rgba(255,255,255,0.85);
-            color: #333;
-        }
-        #search-container input[type="search"]:focus {
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
-        }
-        #menu-buttons {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            user-select: none;
-        }
-        #menu-buttons button {
-            background: rgba(74,144,226,0.3); /* Transparent blue */
-            border: none;
-            color: white;
-            padding: 9px 18px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14.5px;
-            transition: background-color 0.3s ease;
-            box-shadow: 0 2px 6px rgba(74,144,226,0.5);
-        }
-        #menu-buttons button:hover {
-            background-color: rgba(53,122,189,0.6);
-        }
-        #username {
-            margin-left: 20px;
-            font-weight: 700;
-            font-size: 16px;
-            color: #ffffffcc;
-        }
-
-        #map-container {
-            position: relative;
-            flex-grow: 1;
-            box-shadow: inset 0 0 12px rgba(0,0,0,0.1);
-            overflow: visible;
-        }
-        #map {
-            height: 100%;
-            width: 100%;
-        }
-
-        /* Transparent pie chart and issues overlay on map left */
-        #left-overlay {
-            position: absolute;
-            top: 70px;
-            left: 10px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 14px;
-            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.15);
-            min-width: 240px;
-            font-size: 15px;
-            color: white;
-            user-select: none;
-            z-index: 500;
-        }
-        #left-overlay canvas {
-            width: 100% !important;
-            height: auto !important;
-            max-height: 250px;
-            display: block;
-            margin-bottom: 12px;
-            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6));
-        }
-        #chart-date {
-            text-align: center;
-            font-style: italic;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        #issue-labels {
-            font-size: 14.5px;
-        }
-        #issue-labels div {
-            margin-bottom: 12px;
-            font-weight: 700;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
-        }
-        #issue-labels .opened { color: #ff6f61; }
-        #issue-labels .closed { color: #6ee06e; }
-        #issue-labels .active { color: #f7b733; }
-    </style>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
 <div id="top-bar">
     <div id="logo">
-        <img src="https://leafletjs.com/docs/images/logo.png" alt="Logo" />
+        <img src="https://leafletjs.com/docs/images/logo.png" alt="Logo">
         <span>MyApp</span>
     </div>
     <div id="search-container">
-        <input type="search" id="search" placeholder="Search..." />
+        <input type="search" placeholder="Search by ZIP or Address..." id="search">
     </div>
     <div id="menu-buttons">
         <button id="btn-stations">Stations</button>
@@ -188,60 +49,55 @@
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    var map = L.map('map').setView([8.9272, 76.6377], 13);
+/* Initialize Leaflet Map */
+var map = L.map('map').setView([8.9272, 76.6377], 13);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19
+}).addTo(map);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19
-    }).addTo(map);
+var bounds = [[8.92, 76.62], [8.94, 76.65]];
+L.rectangle(bounds, {color: "#0ff", weight: 3, opacity: 0.8, fillOpacity: 0.2}).addTo(map);
+map.fitBounds(bounds);
 
-    var bounds = [[8.92, 76.62], [8.94, 76.65]];
-    L.rectangle(bounds, {color: "#ff7800", weight: 3, opacity: 0.8, fillOpacity: 0.2}).addTo(map);
-    map.fitBounds(bounds);
+/* Donut Chart */
+var ctx = document.getElementById('issuePieChart').getContext('2d');
+var opened = 15, closed = 30, active = 8;
 
-    var ctx = document.getElementById('issuePieChart').getContext('2d');
+var data = {
+    labels: ['Opened', 'Closed', 'Active'],
+    datasets: [{
+        data: [opened, closed, active],
+        backgroundColor: ['#ff4b5c', '#1abc9c', '#f7b733'],
+        borderColor: 'rgba(0,0,0,0.2)',
+        borderWidth: 2,
+        hoverOffset: 15
+    }]
+};
 
-    var opened = 15, closed = 30, active = 8;
-
-    var data = {
-        labels: ['Opened', 'Closed', 'Active'],
-        datasets: [{
-            data: [opened, closed, active],
-            backgroundColor: ['#e74c3c', '#2ecc71', '#f39c12'],
-            hoverOffset: 15,
-            borderColor: '#fff',
-            borderWidth: 2
-        }]
-    };
-
-    var config = {
-        type: 'pie',
-        data: data,
-        options: {
-            responsive: false,
-            animation: { animateScale: true },
-            plugins: {
-                legend: { position: 'bottom', labels: { font: { size: 14, family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" } } },
-                tooltip: { enabled: true }
-            }
+var config = {
+    type: 'doughnut',
+    data: data,
+    options: {
+        responsive: false,
+        cutout: '70%',
+        animation: { animateScale: true },
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#0ff', font: { size: 14 }, boxWidth: 15 } },
+            tooltip: { enabled: true, backgroundColor: 'rgba(0,0,0,0.7)', titleColor: '#0ff', bodyColor: '#fff' }
         }
-    };
+    }
+};
 
-    new Chart(ctx, config);
+new Chart(ctx, config);
 
-    document.getElementById('search').addEventListener('keyup', e => {
-        if(e.key === 'Enter'){
-            alert('Search: ' + e.target.value);
-        }
-    });
-
-    document.getElementById('btn-stations').onclick = () => alert('Stations clicked');
-    document.getElementById('btn-tickets').onclick = () => alert('Tickets clicked');
-    document.getElementById('btn-settings').onclick = () => alert('Settings clicked');
+/* UI interactions */
+document.getElementById('search').addEventListener('keyup', e => { if(e.key === 'Enter'){ alert('Search: ' + e.target.value); }});
+document.getElementById('btn-stations').onclick = () => alert('Stations clicked');
+document.getElementById('btn-tickets').onclick = () => alert('Tickets clicked');
+document.getElementById('btn-settings').onclick = () => alert('Settings clicked');
 </script>
 
 </body>

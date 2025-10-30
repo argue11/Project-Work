@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transformer Provisioning</title>
+    <link rel="stylesheet" href="/static/style.css"> 
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <nav class="furnimart-nav">
+        <div class="logo">
+            <span class="logo-text">Electrical</span><span class="logo-dot">.</span>
+        </div>
+        
+        <div class="main-menu">
+            <a href="#"><i class="fa-solid fa-house"></i> HOME</a>
+            <a href="#" class="active"><i class="fa-solid fa-plug"></i> PROVISIONING</a>
+            <a href="#"><i class="fa-solid fa-database"></i> INVENTORY</a>
+            <a href="#"><i class="fa-solid fa-gear"></i> SETTINGS</a>
+        </div>
+        
+        <div class="utility-links">
+            <a href="#"><i class="fa-solid fa-user"></i> PROFILE</a>
+            <a href="#"><i class="fa-solid fa-search"></i> SEARCH</a>
+        </div>
+    </nav>
+
+    <main class="main-content-centered">
+        <section class="form-section">
+            <header class="header">
+                <h1><i class="fa-solid fa-plug"></i> Transformer Provisioning</h1>
+                <p>Enter the technical details for the new electrical asset.</p>
+            </header>
+
+            <form method="post" autocomplete="off">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="id_asset_class">Asset Class</label>
+                        {{ form.asset_class }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_asset_group">Asset Group</label>
+                        {{ form.asset_group }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_asset_number">Asset Number</label>
+                        {{ form.asset_number }}
+                    </div>
+                    <div class="form-group date-group">
+                        <label for="id_commissioning_date">Commissioning Date</label>
+                        {{ form.commissioning_date }}
+                        <i class="fa-solid fa-calendar-days date-icon"></i>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_commissioning_person">Commissioning Person</label>
+                        {{ form.commissioning_person }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_dmm">DMM</label>
+                        {{ form.dmm }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_secondary_connection">Secondary Connection</label>
+                        {{ form.secondary_connection }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_ct_ratio">CT Ratio</label>
+                        {{ form.ct_ratio }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_pt_ratio">PT Ratio</label>
+                        {{ form.pt_ratio }}
+                    </div>
+                    </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'add_pole' %}" class="btn back-btn">
+                        <i class="fa-solid fa-arrow-left"></i> Back
+                    </a>
+                    <button type="submit" class="btn submit-btn">
+                        <i class="fa-solid fa-paper-plane"></i> Provision
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,106 @@
+{% extends 'citizen_portal/base.html' %}
+{% load static %}
+
+{% block title %}Verify OTP - KSEB{% endblock %}
+
+{% block content %}
+<div class="otp-verification">
+    <h2 class="text-center mb-20">OTP Verification</h2>
+    
+    <!-- Error Message -->
+    {% if error %}
+    <div class="error-message">
+        ⚠️ {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Instructions -->
+    <div class="asset-card">
+        <p>We've sent a 6-digit OTP to your mobile number:</p>
+        <div class="asset-id">{{ complaint.mobile_number }}</div>
+        <p class="otp-timer" id="otpTimer">OTP valid for: 10:00</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <!-- OTP Input -->
+        <div class="form-group">
+            <label class="form-label">Enter OTP</label>
+            <input 
+                type="text" 
+                name="otp" 
+                class="form-input otp-input" 
+                placeholder="______"
+                maxlength="6"
+                pattern="[0-9]{6}"
+                required
+            >
+        </div>
+
+        <!-- Verify Button -->
+        <button type="submit" class="btn btn-primary mb-20">
+            Verify OTP
+        </button>
+    </form>
+
+    <!-- Resend OTP -->
+    <div class="text-center">
+        <p>Didn't receive OTP?</p>
+        <button onclick="resendOTP()" class="btn btn-secondary" id="resendBtn">
+            Resend OTP
+        </button>
+    </div>
+</div>
+
+<script>
+// OTP Timer Countdown
+let timeLeft = 600; // 10 minutes in seconds
+
+function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    document.getElementById('otpTimer').textContent = 
+        `OTP valid for: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    if (timeLeft > 0) {
+        timeLeft--;
+        setTimeout(updateTimer, 1000);
+    } else {
+        document.getElementById('resendBtn').disabled = false;
+    }
+}
+
+// Resend OTP Function
+function resendOTP() {
+    const btn = document.getElementById('resendBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    
+    fetch("{% url 'citizen_portal:resend_otp' complaint.complaint_id %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        // Reset timer
+        timeLeft = 600;
+        updateTimer();
+        btn.textContent = 'Resend OTP';
+        btn.disabled = false;
+    })
+    .catch(error => {
+        alert('Error resending OTP. Please try again.');
+        btn.textContent = 'Resend OTP';
+        btn.disabled = false;
+    });
+}
+
+// Start timer when page loads
+document.addEventListener('DOMContentLoaded', updateTimer);
+</script>
+{% endblock %}
