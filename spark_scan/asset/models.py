@@ -52,9 +52,13 @@ class Pole(models.Model):
         return f"Provisioning: {self.asset_number} - {self.asset_class}"
 
 class TransformerCommissioning(models.Model):
-    # KEEP THIS EXACTLY AS IT IS
     actual_cost = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Actual/Cost")
     location = models.CharField(max_length=100, verbose_name="Location")
+    
+    # ADD THESE TWO LINES
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    
     commissioning_date = models.DateField(verbose_name="Commissioning Date")
     commissioning_payaze = models.CharField(max_length=255, verbose_name="Commissioning Payaze")
     dmm = models.CharField(max_length=20, choices=DMM_CHOICES, verbose_name="DMM")
