@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Complaint - {{ complaint.complaint_id }}</title>
+    <link rel="stylesheet" href="/static/style.css"> 
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="menu-btn" onclick="history.back()">←</button>
+            <h1>Complaint History</h1>
+        </div>
+
+        <div class="content">
+            <!-- Complaint Info Card -->
+            <div class="complaint-card">
+                <h3>Complaint ID: {{ complaint.complaint_id }}</h3>
+                <p><strong>Asset ID:</strong> {{ complaint.asset.asset_number }}</p>
+                <p><strong>Type:</strong> {{ complaint.asset.get_asset_type_display }}</p>
+                
+                <div class="status-badge-container">
+                    {% if complaint.status == 'SUBMITTED' %}
+                        <span class="status-badge status-submitted">{{ complaint.get_status_display }}</span>
+                    {% elif complaint.status == 'INSPECTING' %}
+                        <span class="status-badge status-inspecting">{{ complaint.get_status_display }}</span>
+                    {% elif complaint.status == 'REPAIRING' %}
+                        <span class="status-badge status-repairing">{{ complaint.get_status_display }}</span>
+                    {% elif complaint.status == 'COMPLETED' %}
+                        <span class="status-badge status-completed">{{ complaint.get_status_display }}</span>
+                    {% endif %}
+                </div>
+
+                <p class="description">{{ complaint.complaint_description }}</p>
+            </div>
+
+            <!-- Progress Timeline -->
+            <div class="timeline">
+                <div class="timeline-item {% if complaint.status == 'SUBMITTED' or complaint.status == 'INSPECTING' or complaint.status == 'REPAIRING' or complaint.status == 'COMPLETED' %}active{% endif %}">
+                    <div class="timeline-icon">📋</div>
+                    <div class="timeline-content">
+                        <h4>Submitted</h4>
+                        <p>{{ complaint.created_at|date:"M d, Y H:i" }}</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item {% if complaint.status == 'INSPECTING' or complaint.status == 'REPAIRING' or complaint.status == 'COMPLETED' %}active{% endif %}">
+                    <div class="timeline-icon">🔍</div>
+                    <div class="timeline-content">
+                        <h4>Inspecting</h4>
+                        <p>Under inspection</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item {% if complaint.status == 'REPAIRING' or complaint.status == 'COMPLETED' %}active{% endif %}">
+                    <div class="timeline-icon">🔧</div>
+                    <div class="timeline-content">
+                        <h4>Repairing</h4>
+                        <p>Repair in progress</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item {% if complaint.status == 'COMPLETED' %}active{% endif %}">
+                    <div class="timeline-icon">✓</div>
+                    <div class="timeline-content">
+                        <h4>Completed</h4>
+                        {% if complaint.resolved_at %}
+                            <p>{{ complaint.resolved_at|date:"M d, Y H:i" }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ progress }}%"></div>
+                </div>
+                <p class="progress-text">{{ progress }}% Complete</p>
+            </div>
+
+            <!-- Images if available -->
+            {% if complaint.image1 or complaint.image2 %}
+            <div class="complaint-images">
+                <h4>Uploaded Images</h4>
+                <div class="image-grid">
+                    {% if complaint.image1 %}
+                        <img src="{{ complaint.image1.url }}" alt="Complaint Image 1">
+                    {% endif %}
+                    {% if complaint.image2 %}
+                        <img src="{{ complaint.image2.url }}" alt="Complaint Image 2">
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Resolution Notes (if completed) -->
+            {% if complaint.status == 'COMPLETED' and complaint.resolution_notes %}
+            <div class="resolution-section">
+                <h4>Resolution</h4>
+                <p>{{ complaint.resolution_notes }}</p>
+                {% if complaint.resolved_by %}
+                    <p><strong>Resolved by:</strong> {{ complaint.resolved_by }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="footer">
+            <p>KSEB Customer Care</p>
+        </div>
+    </div>
+</body>
+</html>

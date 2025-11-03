@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Lifecycle Management</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <div class="dashboard-header">
+            <h1>Asset Lifecycle Management</h1>
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-number">{{ total_assets }}</div>
+                    <div class="stat-label">Total Assets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ provisioned_count }}</div>
+                    <div class="stat-label">Provisioned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ commissioned_count }}</div>
+                    <div class="stat-label">Commissioned</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Overview Tabs -->
+        <div class="workflow-section">
+            <h2>⚙ @ Workflow Overview</h2>
+            <div class="workflow-tabs">
+                <button class="tab-btn {% if active_tab == 'provisioned' %}active{% endif %}" 
+                        onclick="window.location.href='{% url 'asset:dashboard' %}?tab=provisioned'">
+                    Provisioned
+                </button>
+                <button class="tab-btn {% if active_tab == 'commissioned' %}active{% endif %}" 
+                        onclick="window.location.href='{% url 'asset:dashboard' %}?tab=commissioned'">
+                    Commissioned
+                </button>
+                <button class="tab-btn {% if active_tab == 'all' %}active{% endif %}" 
+                        onclick="window.location.href='{% url 'asset:dashboard' %}?tab=all'">
+                    All Assets
+                </button>
+            </div>
+        </div>
+
+        <!-- Asset Table View -->
+        <div class="table-section">
+            <div class="table-header">
+                <h3>≡ ⊖ Asset Table View</h3>
+                <a href="{% url 'asset:provision' %}" class="btn-add">+ Add New Asset</a>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="filters-bar">
+                <div class="search-box">
+                    <input type="text" placeholder="Search by Asset ID, Location..." id="searchInput">
+                </div>
+                <select class="filter-select">
+                    <option>Filter by Type</option>
+                    <option value="POLE">Pole</option>
+                    <option value="TRANSFORMER">Transformer</option>
+                </select>
+                <select class="filter-select">
+                    <option>Filter by Location</option>
+                </select>
+                <button class="btn-actions">Actions ▾</button>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Assets Table -->
+            {% if assets %}
+            <table class="assets-table">
+                <thead>
+                    <tr>
+                        <th>Asset ID</th>
+                        <th>Type</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in assets %}
+                    <tr onclick="showAssetDetails('{{ asset.id }}')">
+                        <td><strong>{{ asset.asset_number }}</strong></td>
+                        <td>{{ asset.get_asset_type_display }}</td>
+                        <td>
+                            {% if asset.actual_location %}
+                                {{ asset.actual_location|truncatewords:5 }}
+                            {% else %}
+                                {{ asset.planned_location|truncatewords:5 }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if asset.status == 'PROVISIONED' %}
+                                <span class="status-badge badge-provisioned">Provisioned</span>
+                            {% elif asset.status == 'COMMISSIONED' %}
+                                <span class="status-badge badge-commissioned">Commissioned</span>
+                            {% else %}
+                                <span class="status-badge badge-inactive">{{ asset.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ asset.updated_at|date:"M d, Y" }}</td>
+                        <td class="action-cell" onclick="event.stopPropagation()">
+                            <a href="#" class="action-link">View</a>
+                            {% if asset.status == 'PROVISIONED' %}
+                                <a href="{% url 'asset:commission' asset.id %}" class="action-link">Commission</a>
+                            {% else %}
+                                <a href="#" class="action-link">Edit</a>
+                            {% endif %}
+                            <span class="action-more">⋮</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-data">
+                <p>No assets found for this view.</p>
+                <a href="{% url 'asset:provision' %}" class="btn-primary">+ Provision New Asset</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Asset Details Panel (Right Side) -->
+        <div class="details-panel" id="detailsPanel">
+            <h3>Asset Details Panel</h3>
+            <div id="detailsContent">
+                <p class="details-placeholder">Select an asset from the table to view details</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.assets-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchValue) ? '' : 'none';
+            });
+        });
+
+        // Show asset details (placeholder for now)
+        function showAssetDetails(assetId) {
+            const panel = document.getElementById('detailsPanel');
+            panel.classList.add('active');
+            // In real implementation, fetch asset details via AJAX
+            document.getElementById('detailsContent').innerHTML = `
+                <p>Loading details for Asset ID: ${assetId}</p>
+                <p class="details-note">Full implementation coming soon...</p>
+            `;
+        }
+    </script>
+</body>
+</html>

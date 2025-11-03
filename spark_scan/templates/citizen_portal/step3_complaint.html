@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Complaint</title>
+    <link rel="stylesheet" href="/static/style.css"> 
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="menu-btn">☰</button>
+            <h1>Report Complaint</h1>
+        </div>
+
+        <div class="content">
+            <!-- Asset Info -->
+            <div class="asset-info-card">
+                <h3>Asset ID: {{ asset.asset_number }}</h3>
+                <p><strong>Type:</strong> {{ asset.get_asset_type_display }}</p>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Complaint Form -->
+            <form method="post" enctype="multipart/form-data" class="complaint-form">
+                {% csrf_token %}
+                
+                <!-- Asset Type (Read-only display) -->
+                <div class="form-group">
+                    <label>Asset Type</label>
+                    <input type="text" value="{{ asset.get_asset_type_display }}" readonly class="readonly-input">
+                </div>
+
+                <!-- Safety Hazard Level -->
+                <div class="form-group">
+                    <label for="{{ form.severity.id_for_label }}">{{ form.severity.label }}</label>
+                    {{ form.severity }}
+                    {% if form.severity.errors %}
+                        <span class="error">{{ form.severity.errors }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Complaint Description -->
+                <div class="form-group">
+                    <label for="{{ form.complaint_description.id_for_label }}">{{ form.complaint_description.label }}</label>
+                    {{ form.complaint_description }}
+                    {% if form.complaint_description.errors %}
+                        <span class="error">{{ form.complaint_description.errors }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Image Upload -->
+                <div class="form-group">
+                    <label>{{ form.image1.label }}</label>
+                    <div class="image-upload-section">
+                        <div class="upload-box">
+                            <span class="upload-icon">📷</span>
+                            {{ form.image1 }}
+                            <p>Tap to add photo</p>
+                        </div>
+                        <div class="upload-box">
+                            <span class="upload-icon">📷</span>
+                            {{ form.image2 }}
+                            <p>Tap to add photo (Optional)</p>
+                        </div>
+                    </div>
+                    {% if form.image1.errors %}
+                        <span class="error">{{ form.image1.errors }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Reporter Name (Optional) -->
+                <div class="form-group">
+                    <label for="{{ form.reporter_name.id_for_label }}">{{ form.reporter_name.label }}</label>
+                    {{ form.reporter_name }}
+                    {% if form.reporter_name.errors %}
+                        <span class="error">{{ form.reporter_name.errors }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile Number (Read-only) -->
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="text" value="{{ phone_number }}" readonly class="readonly-input">
+                </div>
+
+                <button type="submit" class="btn-primary">Submit Complaint</button>
+            </form>
+        </div>
+
+        <div class="footer">
+            <p>KSEB Customer Care</p>
+        </div>
+    </div>
+</body>
+</html>
