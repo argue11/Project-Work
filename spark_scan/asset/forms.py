@@ -1,64 +1,92 @@
 from django import forms
-# Import both models
-from .models import Pole, TransformerCommissioning 
+from .models import Asset
 
-# --- 1. EXISTING FORM (Provisioning) ---
-
-class PoleForm(forms.ModelForm):
-    # This keeps your existing DateField setup
-    commissioning_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+class ProvisioningForm(forms.ModelForm):
+    """Form for provisioning assets (planning phase)"""
     
-    class Meta:
-        model = Pole
-        fields = '__all__'
-        widgets = {
-            'asset_class': forms.Select(),
-            'asset_group': forms.Select(),
-            'dmm': forms.Select(),
-            'secondary_connection': forms.Select(),
-        }
-
-# --- 2. NEW FORM (Commissioning) ---
-
-class TransformerCommissioningForm(forms.ModelForm):
-    
-    # Custom widget for DateField to match the 'mm/dd/yy/y' placeholder in the image
-    commissioning_date = forms.DateField(
-        widget=forms.DateInput(
-            # Using type 'text' to show the placeholder format clearly, 
-            # and setting the placeholder text.
-            attrs={
-                'type': 'text', 
-                'placeholder': 'mm/dd/yyyy',
-                'class': 'date-input-field' # Add a class for specific styling if needed
-            }
-        ), 
-        # Define accepted input formats for processing the data
-        input_formats=['%m/%d/%Y', '%m-%d-%Y', '%Y-%m-%d'] 
+    provisioning_date = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'})
     )
-
+    
     class Meta:
-        model = TransformerCommissioning
-        fields = '__all__' # Include all fields from the new model
-        
-        # Customize widgets for better styling and placeholders based on the image
+        model = Asset
+        fields = [
+            'asset_type',
+            'asset_number',
+            'asset_group',
+            'provisioning_date',
+            'provisioned_by',
+            'planned_location',
+            'dmm',
+            'secondary_connection',
+            'ct_ratio',
+            'pt_ratio',
+        ]
         widgets = {
-            'actual_cost': forms.NumberInput(attrs={'placeholder': 'Enter Actual/Cost'}),
-            # Use Select for location dropdown (as per image)
-            'location': forms.Select(attrs={'placeholder': 'SELECT LOCATION'}), 
-            
-            # Corresponds to 'Commissioning Payaze'
-            'commissioning_payaze': forms.TextInput(attrs={'placeholder': 'Enter Commissioning Payaze'}), 
-            
-            'dmm': forms.Select(attrs={'class': 'select-box'}),
-            'secondary_connection': forms.Select(attrs={'class': 'select-box'}),
-            
-            'ct_ratio': forms.TextInput(attrs={'placeholder': 'Enter CT Ratio'}),
-            'pt_ratio': forms.TextInput(attrs={'placeholder': 'Enter PT Ratio'}),
+            'asset_type': forms.Select(attrs={'class': 'form-control'}),
+            'asset_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., POLE-001'}),
+            'asset_group': forms.Select(attrs={'class': 'form-control'}),
+            'provisioned_by': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your name'}),
+            'planned_location': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Describe planned location'}),
+            'dmm': forms.Select(attrs={'class': 'form-control'}),
+            'secondary_connection': forms.Select(attrs={'class': 'form-control'}),
+            'ct_ratio': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 100:5'}),
+            'pt_ratio': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 11000:110'}),
         }
-        
-        # Custom labels if needed (e.g., if model verbose_name isn't sufficient)
         labels = {
+            'asset_type': 'Asset Type',
+            'asset_number': 'Asset Number',
+            'asset_group': 'Asset Group',
+            'provisioning_date': 'Provisioning Date',
+            'provisioned_by': 'Provisioned By',
+            'planned_location': 'Planned Location',
             'dmm': 'DMM',
             'secondary_connection': 'Secondary Connection',
+            'ct_ratio': 'CT Ratio',
+            'pt_ratio': 'PT Ratio',
         }
+
+
+class CommissioningForm(forms.ModelForm):
+    """Form for commissioning assets (installation phase)"""
+    
+    commissioning_date = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    
+    class Meta:
+        model = Asset
+        fields = [
+            'commissioning_date',
+            'commissioned_by',
+            'actual_location',
+            'latitude',
+            'longitude',
+            'actual_cost',
+            'qr_code',
+        ]
+        widgets = {
+            'commissioned_by': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your name'}),
+            'actual_location': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Actual installed location'}),
+            'latitude': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 8.8932', 'step': '0.000001'}),
+            'longitude': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 76.6141', 'step': '0.000001'}),
+            'actual_cost': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 25000.00'}),
+            'qr_code': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'commissioning_date': 'Commissioning Date',
+            'commissioned_by': 'Commissioned By',
+            'actual_location': 'Actual Location',
+            'latitude': 'Latitude',
+            'longitude': 'Longitude',
+            'actual_cost': 'Actual Cost (₹)',
+            'qr_code': 'QR Code Image',
+        }
+    
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        # Automatically change status to COMMISSIONED
+        instance.status = 'COMMISSIONED'
+        if commit:
+            instance.save()
+        return instance

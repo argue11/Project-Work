@@ -1,260 +1,11 @@
-/* Reset & base */
-html, body {
-    height: 100%;
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #0d1117; /* dark background for overall page */
-    color: white;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Top navigation bar */
-#top-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(0,0,0,0.1); /* almost transparent */
-    backdrop-filter: blur(12px);
-    padding: 10px 20px;
-    height: 60px;
-    box-shadow: 0 3px 15px rgba(0,255,255,0.2);
-    z-index: 1000;
-}
-
-#logo {
-    display: flex;
-    align-items: center;
-}
-
-#logo img {
-    height: 36px;
-    width: 36px;
-    margin-right: 12px;
-    filter: drop-shadow(0 0 6px #0ff);
-}
-
-#logo span {
-    font-weight: 700;
-    font-size: 1.4em;
-    text-shadow: 0 0 8px #0ff;
-}
-
-#search-container input[type="search"] {
-    width: 50%;
-    max-width: 400px;
-    padding: 8px 14px;
-    border-radius: 25px;
-    border: none;
-    outline: none;
-    background: rgba(255,255,255,0.05); /* very transparent */
-    color: #fff;
-    font-size: 15px;
-    box-shadow: 0 0 12px #0ff33a44;
-}
-
-#search-container input[type="search"]:focus {
-    box-shadow: 0 0 20px #0ff;
-}
-
-#menu-buttons {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-#menu-buttons button {
-    background: rgba(0,255,255,0.05); /* very transparent */
-    border: 1px solid #0ff;
-    border-radius: 25px;
-    color: #0ff;
-    padding: 8px 18px;
-    font-weight: 600;
-    cursor: pointer;
-    text-shadow: 0 0 5px #0ff;
-    transition: all 0.3s ease;
-}
-
-#menu-buttons button:hover {
-    background: rgba(0,255,255,0.2);
-    box-shadow: 0 0 15px #0ff;
-}
-
-#username {
-    font-weight: 700;
-    color: #0ff;
-    text-shadow: 0 0 6px #0ff;
-}
-
-/* Map container fully transparent */
-#map-container {
-    position: relative;
-    flex-grow: 1;
-    margin: 12px;
-    overflow: visible;
-    border-radius: 0;
-    background: transparent; /* fully transparent */
-    box-shadow: none;
-    backdrop-filter: none;
-}
-
-/* Leaflet map */
-#map {
-    width: 100%;
-    height: 100%;
-}
-
-/* Donut chart overlay */
-#left-overlay {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    width: 280px;
-    background: rgba(20, 30, 60, 0.15); /* very transparent */
-    backdrop-filter: blur(10px);
-    border-radius: 18px;
-    padding: 18px;
-    box-shadow: 0 6px 25px rgba(0,255,255,0.15); /* subtle glow */
-    z-index: 500;
-}
-
-#left-overlay canvas {
-    width: 100% !important;
-    max-height: 240px !important;
-    background: transparent !important;
-    display: block;
-    margin-bottom: 14px;
-}
-
-/* Chart date */
-#chart-date {
-    text-align: center;
-    font-style: italic;
-    font-weight: 600;
-    color: #0ff;
-    margin-bottom: 16px;
-}
-
-/* Issue labels */
-#issue-labels div {
-    font-weight: 700;
-    text-shadow: 0 0 6px #0ff;
-    margin-bottom: 10px;
-}
-
-#issue-labels .opened { color: #ff4b5c; }
-#issue-labels .closed { color: #1abc9c; }
-#issue-labels .active { color: #f7b733; }
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #0d1117;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-.dashboard-card {
-    background: #111827;
-    padding: 20px;
-    border-radius: 15px;
-    width: 80%;
-    max-width: 1000px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #333;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-}
-
-.header h2 {
-    font-size: 20px;
-    font-weight: 600;
-    color: #00e0ff;
-}
-
-.header .date {
-    font-size: 14px;
-    color: #aaa;
-}
-
-.content {
-    display: flex;
-    gap: 30px;
-}
-
-.left {
-    flex: 1;
-    text-align: center;
-}
-
-.transformer-img {
-    max-width: 200px;
-    margin-bottom: 15px;
-}
-
-.system {
-    font-size: 16px;
-    margin: 5px 0;
-}
-
-.healthy {
-    color: #00ff99;
-    font-weight: bold;
-}
-
-.cooling {
-    margin-top: 15px;
-}
-
-.bar {
-    width: 100%;
-    background: #333;
-    border-radius: 10px;
-    height: 10px;
-    overflow: hidden;
-}
-
-.progress {
-    height: 10px;
-    background: #00e0ff;
-    border-radius: 10px;
-}
-
-.right {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-}
-
-.block h3 {
-    font-size: 16px;
-    margin-bottom: 8px;
-    color: #ccc;
-}
-
-.complaints {
-    font-size: 32px;
-    font-weight: bold;
-    color: #00e0ff;
-}
-
 /* Color Palette */
 :root {
-    --primary-color: #007bff; /* Blue for form accents */
+    --primary-color: #007bff;
     --primary-hover: #0056b3;
-    --accent-color: #ff8c00; /* Orange/Brown for logo dot */
+    --accent-color: #ff8c00;
     --text-color-dark: #2c3e50;
     --text-color-nav: #000000;
-    --page-bg: #ffffff; /* White background for seamless look */
+    --page-bg: #ffffff;
     --card-bg: #ffffff;
     --border-color: #e0e6ed;
     --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -269,29 +20,21 @@ body {
 }
 
 body {
-    /* Uses Montserrat font from the HTML link */
     font-family: 'Montserrat', sans-serif;
     background-color: var(--page-bg);
     color: var(--text-color-dark);
     min-height: 100vh;
 }
 
-/* ---------------------------------- */
 /* TOP NAVIGATION BAR (Furnimart Style) */
-/* ---------------------------------- */
 .furnimart-nav {
-    /* BLENDING: White background matches body background */
     background-color: var(--card-bg); 
     display: flex;
     justify-content: space-between;
     align-items: center;
-    
-    /* Centers the bar content */
     max-width: 1300px;
     margin: 0 auto; 
     padding: 20px 30px; 
-    
-    /* Minimalist separation from content below */
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -303,7 +46,7 @@ body {
 }
 
 .logo-text {
-    font-weight: 800; /* Extra bold */
+    font-weight: 800;
 }
 
 .logo-dot {
@@ -316,9 +59,9 @@ body {
 /* Main Menu Styling */
 .main-menu {
     display: flex;
-    gap: 35px; /* Wide spacing */
+    gap: 35px;
     flex-grow: 1; 
-    justify-content: center; /* Centers the links horizontally */
+    justify-content: center;
 }
 
 .main-menu a {
@@ -326,7 +69,7 @@ body {
     text-decoration: none;
     font-size: var(--nav-font-size);
     font-weight: 600; 
-    letter-spacing: 2px; /* Wide letter spacing for minimalist look */
+    letter-spacing: 2px;
     text-transform: uppercase;
     padding: 5px 0;
     transition: color 0.2s;
@@ -357,393 +100,7 @@ body {
     transition: color 0.2s;
 }
 
-
-/* ---------------------------------- */
-/* MAIN CONTENT AREA (Centered Form) */
-/* ---------------------------------- */
-.main-content-centered {
-    display: flex;
-    justify-content: center; /* Centers the card horizontally */
-    align-items: flex-start;
-    padding: 40px 20px; 
-    width: 100%;
-}
-
-.form-section {
-    background: var(--card-bg);
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: var(--shadow-light);
-    width: 100%;
-    max-width: 900px;
-}
-
-/* Header/Title Styling */
-.header {
-    margin-bottom: 25px;
-}
-
-.header h1 {
-    font-size: 1.8rem;
-    color: var(--text-color-dark);
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-}
-
-.header h1 i {
-    font-size: 1.8rem;
-    margin-right: 15px;
-    color: var(--primary-color);
-}
-
-.header p {
-    color: #6c757d;
-    font-size: 0.9rem;
-    margin-left: 55px; 
-}
-
-/* Form Grid and Inputs */
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px 40px;
-    margin-bottom: 40px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    position: relative; 
-}
-
-.form-group label {
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--text-color-dark);
-    font-size: 0.95rem;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    font-size: 1rem;
-    background-color: #fcfcfc;
-    color: #555; 
-}
-
-.date-group .date-icon {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    color: #6c757d;
-    pointer-events: none;
-    font-size: 1.1rem;
-}
-
-/* Form Actions and Buttons */
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
-}
-
-.btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    font-weight: 500;
-}
-
-.back-btn {
-    background-color: #6c757d;
-    color: white;
-}
-
-.submit-btn {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-/* ============================================== */
-/* --- NEW: EAM360 COMMISSIONING PAGE STYLES --- */
-/* (Based on the original dark blue image design) */
-/* ============================================== */
-
-/* Main Page Container (Use a class on your <body> or a wrapper <div>) */
-.eam-page-body {
-    background-color: #2c3e50; /* Darker background than light theme */
-    color: #ecf0f1; /* Light text */
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Header (Top Blue Bar from the image) */
-.eam-header {
-    background-color: #1a237e; /* Deep Blue */
-    color: white;
-    padding: 15px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.eam-app-title {
-    font-size: 1.2em;
-    font-weight: 500;
-}
-
-/* Main Content Grid (Form and Map Side-by-Side) */
-.eam-main-content-grid {
-    padding: 30px;
-    flex-grow: 1;
-    display: grid;
-    /* Ratio: Form (2 parts) to Map (1.5 parts) */
-    grid-template-columns: 2fr 1.5fr; 
-    gap: 40px;
-    max-width: 1400px;
-    margin: 30px auto;
-    width: 95%;
-}
-
-/* Form Panel */
-.eam-form-panel {
-    background-color: #34495e; /* Slightly lighter dark card background */
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.eam-form-panel h2 {
-    color: #00bcd4; /* Light Blue for titles */
-    font-size: 1.8em;
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #555;
-}
-
-/* Form Group */
-.eam-form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
-}
-
-.eam-form-group label {
-    font-weight: 600;
-    color: #bdc3c7; /* Light gray label text */
-    margin-bottom: 5px;
-    font-size: 0.9em;
-}
-
-/* Inputs and Selects */
-.eam-form-panel input, 
-.eam-form-panel select {
-    padding: 10px 15px;
-    border: 1px solid #555;
-    border-radius: 4px;
-    background-color: #2c3e50; /* Dark input background */
-    color: #ecf0f1;
-    font-size: 1em;
-    width: 100%;
-    box-sizing: border-box;
-    transition: border-color 0.2s;
-}
-
-.eam-form-panel input:focus, 
-.eam-form-panel select:focus {
-    border-color: #00bcd4; /* Cyan focus border */
-    outline: none;
-    background-color: #34495e;
-}
-
-/* Form Actions */
-.eam-form-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #555;
-}
-
-/* Back Link (Plus Back) */
-.eam-back-link {
-    color: #bdc3c7;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 1em;
-    transition: color 0.2s;
-}
-.eam-back-link:hover {
-    color: #00bcd4;
-}
-
-/* Submit Button */
-.eam-submit-button {
-    background-color: #1a237e; /* Deep Blue */
-    color: white;
-    padding: 10px 30px;
-    border: none;
-    border-radius: 4px;
-    font-size: 1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.eam-submit-button:hover {
-    background-color: #0d145c;
-}
-
-/* Map Panel */
-.eam-map-panel {
-    background-color: #aaa; /* Gray background for the map image */
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-    min-height: 450px; 
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    /* In a real setup, this would load the map */
-}
-
-/* ================================================= */
-/* --- NEW: EAM360 COMMISSIONING PAGE STYLES ---     */
-/* (Overrides existing styles for the Commissioning page) */
-/* ================================================= */
-
-/* 1. Page Background and Layout */
-.eam-page-body {
-    background-color: #2c3e50; /* Dark background */
-    color: #ecf0f1; /* Light text */
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* 2. Header (Top Deep Blue Bar) */
-.eam-header {
-    background-color: #1a237e; /* Deep Blue from the image */
-    color: white;
-    padding: 15px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.eam-app-title {
-    font-size: 1.2em;
-    font-weight: 500;
-}
-
-/* 3. Main Content Grid (Form and Map Side-by-Side) */
-.eam-main-content-grid {
-    padding: 30px;
-    flex-grow: 1;
-    display: grid;
-    /* Ratio: Form (2 parts) to Map (1.5 parts) */
-    grid-template-columns: 2fr 1.5fr; 
-    gap: 40px;
-    max-width: 1400px;
-    margin: 30px auto;
-    width: 95%;
-}
-
-/* 4. Form Panel Styles */
-.eam-form-panel {
-    background-color: #34495e; /* Slightly lighter dark card background */
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.eam-form-panel h2 {
-    color: #00bcd4; /* Light Blue/Cyan for titles */
-    font-size: 1.8em;
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #555;
-}
-
-.eam-form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
-}
-
-.eam-form-panel input, 
-.eam-form-panel select {
-    padding: 10px 15px;
-    border: 1px solid #555;
-    border-radius: 4px;
-    background-color: #2c3e50; /* Dark input background */
-    color: #ecf0f1;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* 5. Map Panel (Container for the entire map area) */
-.eam-map-panel {
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-    /* Ensure a minimum height so the map is always visible */
-    min-height: 500px; 
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* 6. CRITICAL FIX: Leaflet Map Target */
-#map-display {
-    width: 100%;
-    height: 100%; /* <-- THIS IS THE CRITICAL LINE */
-    position: relative;
-    /* Leaflet will replace this background */
-    background-color: #aaa; 
-}
-
-/* 7. Map Text Overlay (for "New York" label) */
-.eam-map-text-overlay {
-    position: absolute;
-    bottom: 25%; 
-    left: 50%;
-    transform: translateX(-50%);
-    color: #333; 
-    background: rgba(255, 255, 255, 0.9);
-    padding: 5px 15px;
-    border-radius: 5px;
-    font-size: 1.5em;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    z-index: 400; /* Ensure it stays above map tiles/markers */
-}
-
-/* Reset and Base Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-}
-
+/* Issue Reporting Styles */
 .container {
     max-width: 500px;
     margin: 0 auto;
@@ -753,42 +110,12 @@ body {
     flex-direction: column;
 }
 
-/* Header Styles */
-.header {
-    text-align: center;
-    margin-bottom: 30px;
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.logo {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 15px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.header h1 {
-    color: #2c3e50;
-    font-size: 1.8rem;
-    font-weight: 600;
-}
-
-/* Main Content */
 .main-content {
     flex: 1;
     background: white;
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
-
-/* Form Styles */
-.form-group {
     margin-bottom: 20px;
 }
 
@@ -905,16 +232,15 @@ body {
 
 /* Button Styles */
 .btn {
-    display: inline-block;
-    padding: 12px 30px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    text-align: center;
+    border-radius: 6px;
+    font-size: 1rem;
     cursor: pointer;
-    transition: all 0.3s ease;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 500;
 }
 
 .btn-primary {
@@ -981,7 +307,702 @@ body {
     border-left: 4px solid #dc3545;
 }
 
+/* Utility Classes */
+.text-center {
+    text-align: center;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+/* ========================================== */
+/* MAP DASHBOARD STYLES */
+/* ========================================== */
+
+/* Map Page Body Override */
+html.map-page, 
+html.map-page body {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0d1117;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top Navigation Bar */
+#top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(12px);
+    padding: 10px 20px;
+    height: 60px;
+    box-shadow: 0 3px 15px rgba(0, 255, 255, 0.2);
+    z-index: 1000;
+}
+
+/* Logo Section */
+#logo {
+    display: flex;
+    align-items: center;
+}
+
+#logo img {
+    height: 36px;
+    width: 36px;
+    margin-right: 12px;
+    filter: drop-shadow(0 0 6px #0ff);
+}
+
+#logo span {
+    font-weight: 700;
+    font-size: 1.4em;
+    text-shadow: 0 0 8px #0ff;
+}
+
+/* Search Container */
+#search-container input[type="search"] {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 14px;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 15px;
+    box-shadow: 0 0 12px rgba(0, 255, 51, 0.27);
+    transition: box-shadow 0.3s ease;
+}
+
+#search-container input[type="search"]:focus {
+    box-shadow: 0 0 20px #0ff;
+}
+
+/* Menu Buttons */
+#menu-buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#menu-buttons button {
+    background: rgba(0, 255, 255, 0.05);
+    border: 1px solid #0ff;
+    border-radius: 25px;
+    color: #0ff;
+    padding: 8px 18px;
+    font-weight: 600;
+    cursor: pointer;
+    text-shadow: 0 0 5px #0ff;
+    transition: all 0.3s ease;
+}
+
+#menu-buttons button:hover {
+    background: rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 15px #0ff;
+}
+
+#username {
+    font-weight: 700;
+    color: #0ff;
+    text-shadow: 0 0 6px #0ff;
+}
+
+/* Map Container */
+#map-container {
+    position: relative;
+    flex-grow: 1;
+    margin: 12px;
+    overflow: visible;
+    border-radius: 0;
+    background: transparent;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+/* Chart Overlay */
+#left-overlay {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 280px;
+    background: rgba(20, 30, 60, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 6px 25px rgba(0, 255, 255, 0.15);
+    z-index: 500;
+}
+
+#left-overlay canvas {
+    width: 240px !important;
+    height: 240px !important;
+    background: transparent !important;
+    display: block;
+    margin: 0 auto 14px auto;
+}
+
+/* Hide Leaflet logo/attribution */
+.leaflet-control-attribution {
+    display: none !important;
+}
+
+/* Chart Date */
+#chart-date {
+    text-align: center;
+    font-style: italic;
+    font-weight: 600;
+    color: #0ff;
+    margin-bottom: 16px;
+}
+
+/* Issue Labels */
+#issue-labels div {
+    font-weight: 700;
+    text-shadow: 0 0 6px #0ff;
+    margin-bottom: 10px;
+}
+
+#issue-labels .opened { 
+    color: #ff4b5c; 
+}
+
+#issue-labels .closed { 
+    color: #1abc9c; 
+}
+
+#issue-labels .active { 
+    color: #f7b733; 
+}
+
+/* ========================================== */
+/* ASSET DASHBOARD STYLES - NEW */
+/* ========================================== */
+
+/* Dashboard Container */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    grid-template-rows: auto auto 1fr;
+    gap: 20px;
+    padding: 30px;
+    min-height: 100vh;
+    background: #1a1d29;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    grid-column: 1 / -1;
+    background: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #1a1d29;
+}
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1d29;
+}
+
+.stat-label {
+    color: #6c757d;
+    margin-top: 5px;
+    font-size: 0.9rem;
+}
+
+/* Workflow Section */
+.workflow-section {
+    grid-column: 1 / -1;
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.workflow-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #1a1d29;
+}
+
+.workflow-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.tab-btn {
+    padding: 12px 30px;
+    border: 2px solid #e0e0e0;
+    background: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    color: #6c757d;
+}
+
+.tab-btn.active {
+    background: #10b981;
+    color: #fff;
+    border-color: #10b981;
+}
+
+.tab-btn:hover:not(.active) {
+    background: #f8f9fa;
+}
+
+/* Table Section */
+.table-section {
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.table-header h3 {
+    font-size: 1.3rem;
+    color: #1a1d29;
+}
+
+.btn-add {
+    background: #10b981;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.btn-add:hover {
+    background: #059669;
+}
+
+/* Filters Bar */
+.filters-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.filter-select {
+    padding: 10px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.btn-actions {
+    padding: 10px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Alerts */
+.alert {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.alert-error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Assets Table */
+.assets-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.assets-table thead {
+    background: #f8f9fa;
+}
+
+.assets-table th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.assets-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.assets-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.assets-table td {
+    padding: 15px;
+    color: #333;
+}
+
+.assets-table td strong {
+    color: #1a1d29;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-provisioned {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-commissioned {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Action Links */
+.action-cell {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.action-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.action-link:hover {
+    text-decoration: underline;
+}
+
+.action-more {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #6c757d;
+}
+
+/* Details Panel */
+.details-panel {
+    background: #fff;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    grid-row: 2 / -1;
+}
+
+.details-panel h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #1a1d29;
+}
+
+.details-placeholder {
+    color: #6c757d;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.details-note {
+    color: #6c757d;
+    font-style: italic;
+    margin-top: 10px;
+}
+
+/* No Data */
+.no-data {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.no-data p {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+/* ========================================== */
+/* ASSET FORM STYLES (Provision/Commission) */
+/* ========================================== */
+
+/* Header */
+.header {
+    background: #2557a7;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.header .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    font-weight: 400;
+    margin-left: 10px;
+}
+
+.header-icons {
+    display: flex;
+    gap: 20px;
+}
+
+.icon {
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+/* Main Container */
+.main-container {
+    display: flex;
+    min-height: calc(100vh - 60px);
+}
+
+.sidebar {
+    width: 80px;
+    background: #1a2332;
+    padding: 20px;
+}
+
+.menu-toggle {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Form Container */
+.form-container {
+    flex: 1;
+    padding: 40px 60px;
+    background: #1a2332;
+    max-width: 900px;
+    margin: 20px auto;
+    border-radius: 10px;
+}
+
+.form-title {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: #fff;
+    text-align: center;
+}
+
+/* Asset Info Card for Commission Form */
+.asset-info-card {
+    background: #2d3748;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border-left: 4px solid #2557a7;
+}
+
+.asset-info-card h3 {
+    color: #00e0ff;
+    margin-bottom: 10px;
+}
+
+.asset-info-card p {
+    margin: 5px 0;
+    color: #cbd5e0;
+}
+
+/* Form Styles */
+.provision-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    color: #cbd5e0;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px 15px;
+    border: 1px solid #4a5568;
+    border-radius: 6px;
+    background: #2d3748;
+    color: #fff;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #00e0ff;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-group input[type="file"] {
+    padding: 8px;
+}
+
+.error {
+    color: #fc8181;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4a5568;
+}
+
+.btn-back {
+    color: #cbd5e0;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+
+.btn-back:hover {
+    background: #2d3748;
+}
+
+.btn-submit {
+    background: #2557a7;
+    color: #fff;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-submit:hover {
+    background: #1e4682;
+}
+
 /* Responsive Design */
+@media (max-width: 1200px) {
+    .dashboard-container {
+        grid-template-columns: 1fr;
+    }
+
+    .details-panel {
+        grid-row: auto;
+    }
+
+    .stats-cards {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 10px;
@@ -995,26 +1016,487 @@ body {
         grid-template-columns: 1fr;
     }
     
-    .header h1 {
-        font-size: 1.5rem;
+    #top-bar {
+        flex-direction: column;
+        height: auto;
+        padding: 15px;
+    }
+
+    #search-container input[type="search"] {
+        margin: 10px 0;
+    }
+
+    #menu-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    #left-overlay {
+        width: 220px;
+        padding: 12px;
+    }
+
+    .form-container {
+        padding: 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        width: 60px;
+        padding: 10px;
+    }
+
+    .assets-table {
+        font-size: 0.85rem;
+    }
+
+    .assets-table th,
+    .assets-table td {
+        padding: 10px;
     }
 }
 
-/* Loading States */
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
+/* -----------------------------------------
+   PROVISION + COMMISSION PAGE UI UPGRADE
+   (Non-destructive: does not override your existing rules)
+------------------------------------------*/
+
+.main-container {
+    display: flex;
+    width: 100%;
+    height: calc(100vh - 60px);
+    background: #0b1a3f;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
-/* Utility Classes */
-.text-center {
+/* Sidebar (minimal, expandable later) */
+.sidebar {
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Form Body Container */
+.form-container {
+    flex: 1;
+    background: #06132d;
+    border-radius: 16px;
+    padding: 32px;
+    color: #fff;
+    box-shadow: 0 0 20px rgba(0,0,0,0.35);
+    overflow-y: auto;
+}
+
+.form-title {
+    font-size: 22px;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+/* Form Layout */
+.provision-form,
+.commission-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-row {
+    display: flex;
+    gap: 25px;
+}
+
+.form-row .form-group {
+    width: 50%;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #d0d7ff;
+}
+
+/* Input Fields */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #3b4e78;
+    background: #0d224a;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #6295ff;
+    outline: none;
+}
+
+/* Readonly Display Values */
+.readonly-value {
+    padding: 10px 12px;
+    background: #0f1f45;
+    border-radius: 10px;
+    color: #9eb6ff;
+    font-size: 14px;
+    border: 1px dashed #3e517c;
+}
+
+/* Map Placeholder */
+.map-placeholder {
+    border-radius: 12px;
+    background: #0d224a;
+    padding: 25px;
     text-align: center;
+    border: 1px dashed #4360a5;
+    color: #9db6ff;
 }
 
-.mt-20 {
+.map-info {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* Buttons */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
     margin-top: 20px;
 }
 
-.mb-20 {
-    margin-bottom: 20px;
+.btn-back,
+.btn-submit,
+.btn-primary {
+    padding: 12px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    transition: 0.2s ease;
+}
+
+/* Back Button */
+.btn-back {
+    background: transparent;
+    color: #9db2ff;
+    border: 1px solid #445f9a;
+}
+.btn-back:hover {
+    background: #132e63;
+}
+
+/* Submit Button */
+.btn-submit,
+.btn-primary {
+    background: #1c60ff;
+    color: #ffffff;
+}
+.btn-submit:hover,
+.btn-primary:hover {
+    background: #4376ff;
+}
+
+/* Messages (Django alerts) */
+.alert {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+.alert-success {
+    background: rgba(0,255,140,0.12);
+    border-left: 4px solid #00e68a;
+}
+.alert-error,
+.alert-danger {
+    background: rgba(255,72,72,0.16);
+    border-left: 4px solid #ff5757;
+}
+
+/* Scrollbar Styling */
+.form-container::-webkit-scrollbar {
+    width: 8px;
+}
+.form-container::-webkit-scrollbar-thumb {
+    background: #1b3356;
+    border-radius: 4px;
+}
+
+/* =========================================================
+   CITIZEN PORTAL UI ENHANCEMENTS (NON-DESTRUCTIVE EXTENSION)
+   Append at bottom of citizen_portal.css
+   ========================================================= */
+
+/* General Layout */
+.container {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 18px 14px;
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Content spacing */
+.content {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Buttons */
+.btn-primary {
+  display: block;
+  width: 100%;
+  background: #1e5fa3;
+  color: white;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 16px;
+  text-align: center;
+  transition: 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #174a80;
+}
+
+/* Alerts */
+.alert {
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.alert-success {
+  background: #d4f4d4;
+  color: #135b13;
+}
+
+.alert-error,
+.alert-danger {
+  background: #ffd9d9;
+  color: #790000;
+}
+
+/* Form Fields */
+.complaint-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.complaint-form input,
+.complaint-form select,
+.complaint-form textarea {
+  border: 1px solid #d2d2d2;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 15px;
+}
+
+.readonly-input {
+  background: #f7f7f7;
+  color: #6a6a6a;
+}
+
+/* Image Upload */
+.image-upload-section {
+  display: flex;
+  gap: 10px;
+}
+
+.upload-box {
+  flex: 1;
+  border: 2px dashed #b7b7b7;
+  padding: 16px;
+  text-align: center;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #fafafa;
+}
+
+.upload-box p {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Success Page */
+.success-page {
+  text-align: center;
+}
+
+.success-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+/* Details block */
+.complaint-details {
+  background: #f2f6ff;
+  padding: 14px;
+  border-radius: 8px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+}
+
+.label {
+  font-weight: 600;
+  color: #444;
+}
+
+.value {
+  color: #222;
+}
+
+/* Track Complaint Status Badges */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.status-submitted { background: #e9f2ff; color: #174a80; }
+.status-inspecting { background: #fff7cc; color: #7d5d00; }
+.status-repairing { background: #ffe3cc; color: #7a3f00; }
+.status-completed { background: #d9f7d9; color: #146a14; }
+
+/* Timeline */
+.timeline {
+  margin-top: 16px;
+  border-left: 3px solid #dcdcdc;
+  padding-left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.timeline-item {
+  position: relative;
+  opacity: 0.5;
+  transition: 0.2s;
+}
+
+.timeline-item.active {
+  opacity: 1;
+}
+
+.timeline-icon {
+  position: absolute;
+  left: -32px;
+  top: 0;
+  font-size: 18px;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+  margin-top: 14px;
+}
+
+.progress-bar {
+  width: 100%;
+  background: #e5e5e5;
+  height: 8px;
+  border-radius: 50px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #1e5fa3;
+  border-radius: 50px;
+}
+
+/* Uploaded Images */
+.image-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.image-grid img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Leaflet Map Popup Styles */
+.map-popup {
+    color: #000;
+    padding: 10px;
+    min-width: 220px;
+}
+
+.popup-title {
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    color: #1a1d29;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 5px;
+}
+
+.popup-detail {
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.popup-complaints {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.complaint-warning {
+    display: block;
+    color: #dc3545;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.complaint-total {
+    display: block;
+    color: #666;
+    font-size: 0.85em;
+}
+
+.popup-no-issues {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+    color: #28a745;
+    font-weight: 600;
 }

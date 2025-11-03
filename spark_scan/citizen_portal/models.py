@@ -1,94 +1,67 @@
-# citizen_portal/models.py
 from django.db import models
-import uuid
-import random
-from django.utils import timezone
-from datetime import timedelta
-from asset.models import Pole  # ← IMPORT YOUR POLE MODEL
+from asset.models import Asset
 
-# ▼▼▼ REMOVE the Pole model from here - we're using yours from asset app ▼▼▼
-# DELETE this entire Pole class if you have it:
-# class Pole(models.Model):
-#     ... etc ...
+class ComplaintStatus(models.TextChoices):
+    SUBMITTED = 'SUBMITTED', 'Submitted'
+    INSPECTING = 'INSPECTING', 'Inspecting'
+    REPAIRING = 'REPAIRING', 'Repairing'
+    COMPLETED = 'COMPLETED', 'Completed'
 
-# KEEP ONLY Complaint and ComplaintImage models:
+class SeverityLevel(models.TextChoices):
+    LOW = 'LOW', 'Low'
+    MEDIUM = 'MEDIUM', 'Medium'
+    HIGH = 'HIGH', 'High'
+    CRITICAL = 'CRITICAL', 'Critical'
+
 class Complaint(models.Model):
-    SAFETY_HAZARDS = [
-        ('LEANING_POLE', 'Leaning Pole'),
-        ('EXPOSED_WIRES', 'Exposed Wires'),
-        ('SPARKING', 'Sparking'),
-        ('CRACKED_POLE', 'Cracked Pole'),
-        ('MISSING_COMPONENTS', 'Missing Components'),
-        ('VEGETATION_GROWTH', 'Vegetation Growth'),
-        ('OTHER', 'Other'),
-    ]
+    # Complaint ID (auto-generated)
+    complaint_id = models.CharField(max_length=20, unique=True, editable=False)
     
-    COMPLAINT_STATUS = [
-        ('PENDING', 'Pending'),
-        ('UNDER_REVIEW', 'Under Review'),
-        ('ASSIGNED', 'Assigned to Technician'),
-        ('IN_PROGRESS', 'Repair in Progress'),
-        ('RESOLVED', 'Resolved'),
-        ('REJECTED', 'Rejected'),
-    ]
+    # Linked Asset
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name='complaints')
+    
+    # Reporter Information
+    reporter_name = models.CharField(max_length=100, null=True, blank=True)
+    reporter_phone = models.CharField(max_length=15)
     
     # Complaint Details
-    complaint_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    # CHANGE: Link to YOUR Pole model from asset app
-    pole = models.ForeignKey(Pole, on_delete=models.CASCADE, related_name='complaints')  # ← THIS LINKS TO YOUR POLE
-    safety_hazard = models.CharField(max_length=50, choices=SAFETY_HAZARDS)
-    description = models.TextField()
+    complaint_description = models.TextField()
+    severity = models.CharField(max_length=20, choices=SeverityLevel.choices, default='MEDIUM')
     
-    # Contact Information
-    mobile_number = models.CharField(max_length=15)
+    # Images
+    image1 = models.ImageField(upload_to='complaint_images/', null=True, blank=True)
+    image2 = models.ImageField(upload_to='complaint_images/', null=True, blank=True)
     
-    # OTP Verification Fields
-    otp = models.CharField(max_length=6, blank=True, null=True)
-    otp_verified = models.BooleanField(default=False)
-    otp_created_at = models.DateTimeField(blank=True, null=True)
-    otp_attempts = models.IntegerField(default=0)
+    # Status
+    status = models.CharField(max_length=20, choices=ComplaintStatus.choices, default='SUBMITTED')
     
-    # Status Tracking
-    status = models.CharField(max_length=20, choices=COMPLAINT_STATUS, default='PENDING')
+    # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
     
-    def generate_otp(self):
-        self.otp = str(random.randint(100000, 999999))
-        self.otp_created_at = timezone.now()
-        self.otp_attempts = 0
-        self.save()
-        print(f"🔐 OTP for {self.mobile_number}: {self.otp}")
-        return self.otp
+    # Resolution
+    resolution_notes = models.TextField(null=True, blank=True)
+    resolved_by = models.CharField(max_length=100, null=True, blank=True)
     
-    def is_otp_expired(self):
-        if not self.otp_created_at:
-            return True
-        return timezone.now() > self.otp_created_at + timedelta(minutes=10)
-    
-    def verify_otp(self, entered_otp):
-        if self.is_otp_expired():
-            return False, "OTP has expired. Please request a new one."
-        if self.otp_attempts >= 3:
-            return False, "Too many failed attempts. Please request a new OTP."
-        if self.otp == entered_otp:
-            self.otp_verified = True
-            self.otp_attempts = 0
-            self.save()
-            return True, "OTP verified successfully!"
-        else:
-            self.otp_attempts += 1
-            self.save()
-            attempts_left = 3 - self.otp_attempts
-            return False, f"Invalid OTP. {attempts_left} attempts left."
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Complaint'
+        verbose_name_plural = 'Complaints'
     
     def __str__(self):
-        return f"Complaint {self.complaint_id} - {self.pole.asset_number}"  # ← CHANGE: asset_number
-
-class ComplaintImage(models.Model):
-    complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='complaint_images/')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+        return f"{self.complaint_id} - {self.asset.asset_number}"
     
-    def __str__(self):
-        return f"Image for {self.complaint.complaint_id}"
+    def save(self, *args, **kwargs):
+        if not self.complaint_id:
+            self.complaint_id = self.generate_complaint_id()
+        super().save(*args, **kwargs)
+    
+    def generate_complaint_id(self):
+        import random
+        from datetime import datetime
+        year = datetime.now().year
+        while True:
+            complaint_id = f"CPN-{year}-{random.randint(1000, 9999)}"
+            if not Complaint.objects.filter(complaint_id=complaint_id).exists():
+                return complaint_id

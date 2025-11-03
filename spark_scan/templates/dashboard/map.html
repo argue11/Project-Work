@@ -1,104 +1,241 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="map-page">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Map Dashboard</title>
-
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-<!-- Custom CSS -->
-<link rel="stylesheet" href="/static/style.css">
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Map Dashboard - Spark Scan</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    
+    <!-- Your Custom CSS -->
+    <link rel="stylesheet" href="/static/style.css"> 
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
-
-<div id="top-bar">
-    <div id="logo">
-        <img src="https://leafletjs.com/docs/images/logo.png" alt="Logo">
-        <span>MyApp</span>
-    </div>
-    <div id="search-container">
-        <input type="search" placeholder="Search by ZIP or Address..." id="search">
-    </div>
-    <div id="menu-buttons">
-        <button id="btn-stations">Stations</button>
-        <button id="btn-tickets">Tickets</button>
-        <button id="btn-settings">Settings</button>
-        <div id="username">JohnDoe</div>
-    </div>
-</div>
-
-<div id="map-container">
-    <div id="map"></div>
-
-    <div id="left-overlay">
-        <canvas id="issuePieChart"></canvas>
-        <div id="chart-date">Date: 2025-09-27</div>
-        <div id="issue-labels">
-            <div class="opened">Opened Issues: <span id="opened-count">15</span></div>
-            <div class="closed">Closed Issues: <span id="closed-count">30</span></div>
-            <div class="active">Active Issues: <span id="active-count">8</span></div>
+    <!-- Top Navigation Bar -->
+    <div id="top-bar">
+        <div id="logo">
+            <span>Spark Scan</span>
+        </div>
+        <div id="search-container">
+            <input type="search" placeholder="Search by location or asset number..." id="search">
+        </div>
+        <div id="menu-buttons">
+            <button id="btn-stations">Stations</button>
+            <button id="btn-tickets">Tickets</button>
+            <button id="btn-settings">Settings</button>
+            <div id="username">Admin</div>
         </div>
     </div>
-</div>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Map Container -->
+    <div id="map-container">
+        <div id="map"></div>
 
-<script>
-/* Initialize Leaflet Map */
-var map = L.map('map').setView([8.9272, 76.6377], 13);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19
-}).addTo(map);
+        <!-- Chart Overlay -->
+        <div id="left-overlay">
+            <canvas id="issuePieChart"></canvas>
+            <div id="chart-date">Date: November 02, 2025</div>
+            <div id="issue-labels">
+                <div class="opened">Opened Issues: <span id="opened-count">{{ opened_count }}</span></div>
+                <div class="closed">Closed Issues: <span id="closed-count">{{ closed_count }}</span></div>
+                <div class="active">Active Issues: <span id="active-count">{{ active_count }}</span></div>
+            </div>
+        </div>
+    </div>
 
-var bounds = [[8.92, 76.62], [8.94, 76.65]];
-L.rectangle(bounds, {color: "#0ff", weight: 3, opacity: 0.8, fillOpacity: 0.2}).addTo(map);
-map.fitBounds(bounds);
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-/* Donut Chart */
-var ctx = document.getElementById('issuePieChart').getContext('2d');
-var opened = 15, closed = 30, active = 8;
+    <script>
+        // Initialize Leaflet Map
+        var map = L.map('map').setView([8.590674, 76.872611], 16);
 
-var data = {
-    labels: ['Opened', 'Closed', 'Active'],
-    datasets: [{
-        data: [opened, closed, active],
-        backgroundColor: ['#ff4b5c', '#1abc9c', '#f7b733'],
-        borderColor: 'rgba(0,0,0,0.2)',
-        borderWidth: 2,
-        hoverOffset: 15
-    }]
-};
+        // Add dark theme tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19
+        }).addTo(map);
 
-var config = {
-    type: 'doughnut',
-    data: data,
-    options: {
-        responsive: false,
-        cutout: '70%',
-        animation: { animateScale: true },
-        plugins: {
-            legend: { position: 'bottom', labels: { color: '#0ff', font: { size: 14 }, boxWidth: 15 } },
-            tooltip: { enabled: true, backgroundColor: 'rgba(0,0,0,0.7)', titleColor: '#0ff', bodyColor: '#fff' }
+        // Get data from Django
+        var poles = {{ poles|safe }};
+        var transformers = {{ transformers|safe }};
+
+        // Pole circle marker style - RED if has complaints, GREEN if normal
+        function getPoleStyle(hasComplaints) {
+            return {
+                radius: 8,
+                fillColor: hasComplaints ? "#ff0000" : "#00ff00",
+                color: hasComplaints ? "#ff0000" : "#00ff00",
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            };
         }
-    }
-};
 
-new Chart(ctx, config);
+        // Transformer circle marker style - RED if has complaints, CYAN if normal
+        function getTransformerStyle(hasComplaints) {
+            return {
+                radius: 10,
+                fillColor: hasComplaints ? "#ff0000" : "#00e0ff",
+                color: hasComplaints ? "#ff0000" : "#00e0ff",
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            };
+        }
 
-/* UI interactions */
-document.getElementById('search').addEventListener('keyup', e => { if(e.key === 'Enter'){ alert('Search: ' + e.target.value); }});
-document.getElementById('btn-stations').onclick = () => alert('Stations clicked');
-document.getElementById('btn-tickets').onclick = () => alert('Tickets clicked');
-document.getElementById('btn-settings').onclick = () => alert('Settings clicked');
-</script>
+        // Add pole markers
+        poles.forEach(function(pole) {
+            var style = getPoleStyle(pole.has_complaints);
+            var marker = L.circleMarker([pole.lat, pole.lng], style).addTo(map);
+            
+            // Build popup content
+            var popupContent = `
+                <div class="map-popup">
+                    <div class="popup-title">POLE: ${pole.asset_number}</div>
+                    <div class="popup-detail">Location: ${pole.location}</div>
+                    <div class="popup-detail">Status: ${pole.status}</div>
+                    <div class="popup-detail">Commissioned: ${pole.commissioning_date}</div>
+            `;
+            
+            if (pole.has_complaints) {
+                popupContent += `
+                    <div class="popup-complaints">
+                        <span class="complaint-warning">⚠ ${pole.open_complaints} Open Complaint(s)</span>
+                        <span class="complaint-total">Total: ${pole.total_complaints} complaint(s)</span>
+                    </div>`;
+            } else {
+                popupContent += `<div class="popup-no-issues">✓ No Issues</div>`;
+            }
+            
+            popupContent += `</div>`;
+            marker.bindPopup(popupContent);
+            
+            // Add pulsing animation for assets with complaints
+            if (pole.has_complaints) {
+                setInterval(function() {
+                    var currentOpacity = marker.options.fillOpacity;
+                    marker.setStyle({fillOpacity: currentOpacity === 0.8 ? 0.3 : 0.8});
+                }, 1000);
+            }
+        });
 
+        // Add transformer markers
+        transformers.forEach(function(transformer) {
+            var style = getTransformerStyle(transformer.has_complaints);
+            var marker = L.circleMarker([transformer.lat, transformer.lng], style).addTo(map);
+            
+            // Build popup content
+            var popupContent = `
+                <div class="map-popup">
+                    <div class="popup-title">TRANSFORMER: ${transformer.asset_number}</div>
+                    <div class="popup-detail">Location: ${transformer.location}</div>
+                    <div class="popup-detail">Cost: ₹${transformer.actual_cost}</div>
+                    <div class="popup-detail">Commissioned: ${transformer.commissioning_date}</div>
+            `;
+            
+            if (transformer.has_complaints) {
+                popupContent += `
+                    <div class="popup-complaints">
+                        <span class="complaint-warning">⚠ ${transformer.open_complaints} Open Complaint(s)</span>
+                        <span class="complaint-total">Total: ${transformer.total_complaints} complaint(s)</span>
+                    </div>`;
+            } else {
+                popupContent += `<div class="popup-no-issues">✓ No Issues</div>`;
+            }
+            
+            popupContent += `</div>`;
+            marker.bindPopup(popupContent);
+            
+            // Add pulsing animation for assets with complaints
+            if (transformer.has_complaints) {
+                setInterval(function() {
+                    var currentOpacity = marker.options.fillOpacity;
+                    marker.setStyle({fillOpacity: currentOpacity === 0.8 ? 0.3 : 0.8});
+                }, 1000);
+            }
+        });
+
+        // Fit map to show all markers
+        if (poles.length > 0 || transformers.length > 0) {
+            var allMarkers = [];
+            poles.forEach(p => allMarkers.push([p.lat, p.lng]));
+            transformers.forEach(t => allMarkers.push([t.lat, t.lng]));
+            
+            if (allMarkers.length > 0) {
+                var bounds = L.latLngBounds(allMarkers);
+                map.fitBounds(bounds, {padding: [50, 50]});
+            }
+        }
+
+        // Donut Chart - NOW WITH REAL DATA
+        var ctx = document.getElementById('issuePieChart').getContext('2d');
+        var opened = {{ opened_count }};
+        var closed = {{ closed_count }};
+        var active = {{ active_count }};
+
+        var data = {
+            labels: ['Opened', 'Closed', 'Active'],
+            datasets: [{
+                data: [opened, closed, active],
+                backgroundColor: ['#ff4b5c', '#1abc9c', '#f7b733'],
+                borderColor: 'rgba(0,0,0,0.2)',
+                borderWidth: 2,
+                hoverOffset: 15
+            }]
+        };
+
+        var config = {
+            type: 'doughnut',
+            data: data,
+            options: {
+                responsive: false,
+                cutout: '70%',
+                animation: { animateScale: true },
+                plugins: {
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { 
+                            color: '#0ff', 
+                            font: { size: 14 }, 
+                            boxWidth: 15 
+                        } 
+                    },
+                    tooltip: { 
+                        enabled: true, 
+                        backgroundColor: 'rgba(0,0,0,0.7)', 
+                        titleColor: '#0ff', 
+                        bodyColor: '#fff' 
+                    }
+                }
+            }
+        };
+
+        new Chart(ctx, config);
+
+        // UI interactions
+        document.getElementById('search').addEventListener('keyup', function(e) {
+            if(e.key === 'Enter') {
+                alert('Search: ' + e.target.value);
+            }
+        });
+        
+        document.getElementById('btn-stations').onclick = function() {
+            alert('Stations clicked');
+        };
+        
+        document.getElementById('btn-tickets').onclick = function() {
+            alert('Tickets clicked');
+        };
+        
+        document.getElementById('btn-settings').onclick = function() {
+            alert('Settings clicked');
+        };
+    </script>
 </body>
 </html>

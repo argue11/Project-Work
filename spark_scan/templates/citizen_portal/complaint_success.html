@@ -1,32 +1,58 @@
-{% extends 'citizen_portal/base.html' %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Submitted</title>
+    <link rel="stylesheet" href="/static/style.css"> 
 
-{% block title %}Complaint Submitted - KSEB{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Complaint Submitted</h1>
+        </div>
 
-{% block content %}
-<div class="success-container">
-    <div class="success-icon">✅</div>
-    
-    <h2 class="text-center mb-20">Complaint Submitted Successfully!</h2>
-    
-    <div class="asset-card">
-        <p>Your complaint has been registered and forwarded to KSEB authorities.</p>
-        <p>Our team will review it and take appropriate action.</p>
+        <div class="content success-page">
+            <div class="success-icon">✅</div>
+            
+            <h2>Complaint Registered Successfully!</h2>
+            
+            <div class="complaint-details">
+                <div class="detail-row">
+                    <span class="label">Complaint ID:</span>
+                    <span class="value">{{ complaint.complaint_id }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Asset:</span>
+                    <span class="value">{{ complaint.asset.asset_number }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Status:</span>
+                    <span class="value status-badge">{{ complaint.get_status_display }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Submitted:</span>
+                    <span class="value">{{ complaint.created_at|date:"M d, Y H:i" }}</span>
+                </div>
+            </div>
+
+            <div class="tracking-section">
+                <p>Track your complaint using the link:</p>
+                <div class="tracking-link">
+                    <a href="{{ tracking_url }}" target="_blank">{{ tracking_url }}</a>
+                </div>
+                <p class="whatsapp-note">📱 A WhatsApp message with tracking link has been sent to your number.</p>
+            </div>
+
+            <a href="{% url 'citizen_portal:track_complaint' complaint.complaint_id %}" class="btn-primary">
+                Track Complaint
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>KSEB Customer Care</p>
+        </div>
     </div>
-
-    <div class="complaint-info mt-20">
-        <h3>What happens next?</h3>
-        <ul style="text-align: left; margin: 20px 0; padding-left: 20px;">
-            <li>Complaint received by KSEB control room</li>
-            <li>Technical team assigned for inspection</li>
-            <li>You'll receive updates on the status</li>
-            <li>Expected resolution within 24-48 hours</li>
-        </ul>
-    </div>
-
-    <div class="text-center mt-20">
-        <p>Thank you for helping us maintain electrical safety!</p>
-        <a href="/" class="btn btn-primary mt-20">Report Another Issue</a>
-    </div>
-</div>
-{% endblock %}
+</body>
+</html>

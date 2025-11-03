@@ -1,14 +1,19 @@
 from django.urls import path
-# Import all necessary views
-from .views import AddPole, CommissionTransformer, commissioning_success 
+from . import views
+
+app_name = 'asset'
 
 urlpatterns = [
-    # Existing Provisioning URL
-    path('add-pole/', AddPole.as_view(), name='add_pole'),
+    # Dashboard (shows all assets with tabs)
+    path('', views.AssetDashboardView.as_view(), name='dashboard'),
     
-    # New Commissioning URL
-    path('commission-transformer/', CommissionTransformer.as_view(), name='commission_transformer'),
+    # Provisioning
+    path('provision/', views.ProvisionAssetView.as_view(), name='provision'),
     
-    # New Success URL
-    path('commissioning-success/', commissioning_success, name='commissioning_success'),
+    # These two are just aliases pointing back to dashboard with specific tabs
+    path('provisioned/', views.AssetDashboardView.as_view(), {'tab': 'provisioned'}, name='provisioned_list'),
+    path('commissioned/', views.AssetDashboardView.as_view(), {'tab': 'commissioned'}, name='commissioned_list'),
+    
+    # Commissioning
+    path('commission/<int:asset_id>/', views.CommissionAssetView.as_view(), name='commission'),
 ]

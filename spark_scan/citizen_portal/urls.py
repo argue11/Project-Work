@@ -1,34 +1,21 @@
-# citizen_portal/urls.py
 from django.urls import path
 from . import views
 
 app_name = 'citizen_portal'
 
 urlpatterns = [
-    # Complaint Form - When user scans QR code
-    path('report/<str:asset_id>/', 
-         views.ComplaintFormView.as_view(), 
-         name='complaint_form'),
+    # Step 1: Phone Number Entry (QR Code lands here)
+    path('report/<int:asset_id>/', views.ReportComplaintStep1View.as_view(), name='report_step1'),
     
-    # OTP Verification
-    path('verify-otp/<uuid:complaint_id>/', 
-         views.VerifyOTPView.as_view(), 
-         name='verify_otp'),
+    # Step 2: OTP Verification
+    path('verify-otp/', views.VerifyOTPView.as_view(), name='verify_otp'),
     
-    # Resend OTP
-    path('resend-otp/<uuid:complaint_id>/', 
-         views.ResendOTPView.as_view(), 
-         name='resend_otp'),
+    # Step 3: Complaint Form
+    path('submit-complaint/', views.SubmitComplaintView.as_view(), name='submit_complaint'),
     
     # Success Page
-    path('complaint-success/', 
-         views.ComplaintSuccessView.as_view(), 
-         name='complaint_success'),
+    path('success/<str:complaint_id>/', views.ComplaintSuccessView.as_view(), name='complaint_success'),
     
-    # Check Complaint Status
-    path('complaint-status/<uuid:complaint_id>/', 
-         views.ComplaintStatusView.as_view(), 
-         name='complaint_status'),
-
-    path('qr/<str:asset_number>/', views.generate_pole_qr, name='generate_qr'),
+    # Public Tracking
+    path('track/<str:complaint_id>/', views.TrackComplaintView.as_view(), name='track_complaint'),
 ]
