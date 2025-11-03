@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            EAM360
+            <span class="subtitle">Electrical Asset Management</span>
+        </div>
+        <div class="header-icons">
+            <i class="fas fa-bell icon"></i>
+            <i class="fas fa-user-circle icon"></i>
+            <i class="fas fa-bars icon"></i>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <button class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container">
+            <h2 class="form-title">Transformer Provisioning</h2>
+
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" class="provision-form">
+                {% csrf_token %}
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.asset_type.id_for_label }}">Asset Class</label>
+                        {{ form.asset_type }}
+                        {% if form.asset_type.errors %}
+                            <span class="error">{{ form.asset_type.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.asset_group.id_for_label }}">Asset Group</label>
+                        {{ form.asset_group }}
+                        {% if form.asset_group.errors %}
+                            <span class="error">{{ form.asset_group.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.asset_number.id_for_label }}">Asset Number</label>
+                    {{ form.asset_number }}
+                    {% if form.asset_number.errors %}
+                        <span class="error">{{ form.asset_number.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.provisioning_date.id_for_label }}">Provisioning Date</label>
+                        {{ form.provisioning_date }}
+                        {% if form.provisioning_date.errors %}
+                            <span class="error">{{ form.provisioning_date.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.provisioned_by.id_for_label }}">Provisioning Person</label>
+                        {{ form.provisioned_by }}
+                        {% if form.provisioned_by.errors %}
+                            <span class="error">{{ form.provisioned_by.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.dmm.id_for_label }}">DMM</label>
+                    {{ form.dmm }}
+                    {% if form.dmm.errors %}
+                        <span class="error">{{ form.dmm.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.secondary_connection.id_for_label }}">Secondary Connection</label>
+                    {{ form.secondary_connection }}
+                    {% if form.secondary_connection.errors %}
+                        <span class="error">{{ form.secondary_connection.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.ct_ratio.id_for_label }}">CT Ratio</label>
+                        {{ form.ct_ratio }}
+                        {% if form.ct_ratio.errors %}
+                            <span class="error">{{ form.ct_ratio.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.pt_ratio.id_for_label }}">PT Ratio</label>
+                        {{ form.pt_ratio }}
+                        {% if form.pt_ratio.errors %}
+                            <span class="error">{{ form.pt_ratio.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.planned_location.id_for_label }}">Planned Location</label>
+                    {{ form.planned_location }}
+                    {% if form.planned_location.errors %}
+                        <span class="error">{{ form.planned_location.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'asset:dashboard' %}" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </a>
+                    <button type="submit" class="btn-submit">Provision</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

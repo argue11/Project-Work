@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Complaint - Step 1</title>
+    <link rel="stylesheet" href="/static/style.css"> 
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="menu-btn">☰</button>
+            <h1>Report Complaint</h1>
+        </div>
+
+        <div class="content">
+            <!-- Asset Info Card -->
+            <div class="asset-info-card">
+                <h3>Asset ID: {{ asset.asset_number }}</h3>
+                <p><strong>Type:</strong> {{ asset.get_asset_type_display }}</p>
+                <p><strong>Location:</strong> {{ asset.actual_location|default:asset.planned_location }}</p>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Phone Number Form -->
+            <form method="post" class="complaint-form">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.phone_number.id_for_label }}">Mobile Number</label>
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}
+                        <span class="error">{{ form.phone_number.errors }}</span>
+                    {% endif %}
+                    <small class="help-text">{{ form.phone_number.help_text }}</small>
+                </div>
+
+                <button type="submit" class="btn-primary">Send OTP</button>
+            </form>
+        </div>
+
+        <div class="footer">
+            <p>KSEB Customer Care</p>
+        </div>
+    </div>
+</body>
+</html>
