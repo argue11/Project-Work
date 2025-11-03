@@ -30,7 +30,7 @@ class LoginView(View):
 
             if user:
                 login(request, user)
-                return redirect("home")
+                return redirect("leaflet-map")
             
             msg = "Invalid Credentials"
 
