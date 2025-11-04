@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "asset",
     "citizen_portal",
-    "authentication"
+    "authentication",
+    "public_dashboard",
 ]
 
 MIDDLEWARE = [

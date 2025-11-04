@@ -11,8 +11,7 @@ import threading
 from .forms import LoginForm, RegisterForm, OTPForm, NewPasswordForm
 from .utility import password_generator, sending_email, generate_otp, send_phone_sms
 from .permissions import permission_roles
-from .models import OTP
-
+from .models import OTP, Profile
 
 class LoginView(View):
     form_class = LoginForm
@@ -37,51 +36,97 @@ class LoginView(View):
         context = {"form": form, "msg": msg if "msg" in locals() else None}
         return render(request, "authentication/login.html", context)
 
-
 class LogoutView(View):
     def get(self, request, *args, **kwargs):
         logout(request)
-        return redirect("home")
+        return redirect("public_dashboard:public_map")
 
 
-class RegisterView(View):
-    from_class = RegisterForm
+# ========================================
+# OFFICER/OPERATOR REGISTRATION VIEWS
+# ========================================
+
+class OfficerRegisterView(View):
+    form_class = RegisterForm
+    template_name = 'authentication/register_officer.html'
 
     def get(self, request, *args, **kwargs):
-        form = self.from_class
+        form = self.form_class()
         context = {"form": form}
-        return render(request, "authentication/register.html", context)
+        return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
-        form = self.from_class(request.POST)
+        form = self.form_class(request.POST)
 
         if form.is_valid():
             user = form.save(commit=False)
             user.username = user.email
-            user.role = "User"
+            user.role = "Officer"  # Set role as Officer
 
             password = password_generator()
-            print(password)  # For development - remove in production
+            print(f"Officer Password: {password}")
 
             user.password = make_password(password)
             user.save()
 
             # Send credentials via email
-            subject = "Login Credential"
+            subject = "Officer Account Credentials"
             template = "email/login-credentials.html"
-            context = {"user": user, "password": password}
+            context = {"user": user, "password": password, "role": "Officer"}
             recipient = user.email
 
             thread = threading.Thread(target=sending_email, args=(subject, template, context, recipient))
             thread.start()
 
-            return redirect("login")
+            messages.success(request, "Acccount created successfully! Credentials sent via email.")
+            return redirect("authentication:login")
         
         context = {"form": form}
-        return render(request, "authentication/register.html", context)
+        return render(request, self.template_name, context)
 
+class OperatorRegisterView(View):
+    form_class = RegisterForm
+    template_name = 'authentication/register_operator.html'
 
-@method_decorator(permission_roles(roles=['User']), name='dispatch')     
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        context = {"form": form}
+        return render(request, self.template_name, context)
+    
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.email
+            user.role = "Operator"  # Set role as Operator
+
+            password = password_generator()
+            print(f"Operator Password: {password}")
+
+            user.password = make_password(password)
+            user.save()
+
+            # Send credentials via email
+            subject = "Operator Account Credentials"
+            template = "email/login-credentials.html"
+            context = {"user": user, "password": password, "role": "Operator"}
+            recipient = user.email
+
+            thread = threading.Thread(target=sending_email, args=(subject, template, context, recipient))
+            thread.start()
+
+            messages.success(request, "Account created successfully! Credentials sent via email.")
+            return redirect("authentication:login")
+        
+        context = {"form": form}
+        return render(request, self.template_name, context)
+
+# ========================================
+# PASSWORD MANAGEMENT VIEWS (FIXED)
+# ========================================
+
+@method_decorator(permission_roles(roles=['Officer', 'Operator']), name='dispatch')     
 class ChangePasswordView(View):
     form_class = OTPForm
 
@@ -89,25 +134,26 @@ class ChangePasswordView(View):
         form = self.form_class()
 
         # Generate OTP
-        otp_code = generate_otp(4)  # 4-digit OTP
+        email_otp, phone_otp = generate_otp()  # Assuming this returns tuple
 
         # Get or create OTP record for user
         otp, status = OTP.objects.get_or_create(user=request.user)
-        otp.phone_otp = otp_code
+        otp.email_otp = email_otp
+        otp.phone_otp = phone_otp
         otp.verified = False
         otp.save()
 
-        # Send email OTP (if you want email verification too)
+        # Send email OTP
         subject = 'OTP For Change Password'
         template = 'email/email-otp.html'
-        context = {'otp': otp_code, 'request': request}
+        context = {'otp': email_otp, 'request': request}
         recipient = request.user.email
 
         thread = threading.Thread(target=sending_email, args=(subject, template, context, recipient))
         thread.start()
 
         # Send SMS OTP
-        send_phone_sms(request.user.phone_num, otp_code)
+        send_phone_sms(request.user.phone_num, phone_otp)
 
         request.session["otp_time"] = timezone.now().timestamp()
         remaining_time = 600
@@ -120,13 +166,15 @@ class ChangePasswordView(View):
 
         if form.is_valid():
             validated_data = form.cleaned_data
-            entered_otp = validated_data.get("phone_otp")  # Assuming you're using phone OTP
+            email_otp = validated_data.get("email_otp")
+            phone_otp = validated_data.get("phone_otp")
             otp_time = request.session.get("otp_time")
 
             error = None
 
             try:
                 otp = OTP.objects.get(user=request.user)
+                db_email_otp = otp.email_otp
                 db_phone_otp = otp.phone_otp
 
                 if otp_time:
@@ -135,7 +183,7 @@ class ChangePasswordView(View):
 
                     if elapsed > 600:
                         error = "OTP expired, request a new one"
-                    elif entered_otp == db_phone_otp:
+                    elif email_otp == db_email_otp and phone_otp == db_phone_otp:
                         request.session.pop("otp_time")
                         otp.verified = True
                         otp.save()
@@ -148,8 +196,7 @@ class ChangePasswordView(View):
         data = {'form': form, "remaining_time": remaining_time if 'remaining_time' in locals() else 600, "error": error}
         return render(request, 'authentication/otp.html', context=data)
 
-
-@method_decorator(permission_roles(roles=['User']), name="dispatch")
+@method_decorator(permission_roles(roles=['Officer', 'Operator']), name="dispatch")
 class NewPasswordView(View):
     form_class = NewPasswordForm
 
@@ -169,11 +216,10 @@ class NewPasswordView(View):
 
             logout(request)
             messages.success(request, "Password successfully changed")
-            return redirect("login")            
+            return redirect("authentication:login")            
 
         context = {"form": form}
         return render(request, "authentication/new-password.html", context)
-
 
 # ========================================
 # GENERIC OTP VIEWS (For Citizen Portal)
@@ -210,7 +256,6 @@ class SendOTPView(View):
         request.session['otp_time'] = timezone.now().timestamp()
         
         return JsonResponse({'success': True, 'message': 'OTP sent successfully'})
-
 
 class VerifyOTPView(View):
     """Generic view to verify OTP (for guest users)"""

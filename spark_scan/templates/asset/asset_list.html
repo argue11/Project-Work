@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Management - SPARK SCAN</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            padding-top: 70px;
+            background-color: #f8f9fa;
+        }
+        
+        .glowy-logo {
+            text-shadow: 0 0 10px rgba(13, 110, 253, 0.8);
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+        
+        .action-btn:hover {
+            color: #0d6efd !important;
+        }
+        
+        .username {
+            color: #ffc107 !important;
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            margin-bottom: 20px;
+        }
+        
+        .action-btn-group .btn {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .table-responsive {
+            margin-top: 20px;
+        }
+        
+        .asset-table tbody tr {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .asset-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .asset-table tbody tr.selected {
+            background-color: #e3f2fd;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-provisioned {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-commissioned {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-under_maintenance {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+        
+        .status-faulty {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm fixed-top">
+        <div class="container-fluid">
+            <!-- Glowy Logo -->
+            <a class="navbar-brand fw-bold glowy-logo" href="{% url 'leaflet-map' %}">
+                SPARK SCAN
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarMain">
+                <ul class="navbar-nav ms-auto action-buttons-right">
+                    <li class="nav-item">
+                        <a href="{% url 'asset:asset_list' %}" class="nav-link action-btn">Actions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link action-btn">Complaints</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        {% if user.is_authenticated %}
+                            <a class="nav-link dropdown-toggle username" href="#" id="userDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a>
+                                </li>
+                            </ul>
+                        {% else %}
+                            <a class="nav-link action-btn" href="{% url 'authentication:login' %}">Login</a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-list"></i> Asset Management
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Success/Error Messages -->
+                        {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <div class="action-btn-group">
+                                {% if request.user.is_authenticated and request.user.role == 'Officer' %}
+                                    <button type="button" class="btn btn-success" id="btnProvision">
+                                        <i class="fas fa-plus"></i> Provision
+                                    </button>
+                                    <button type="button" class="btn btn-primary" id="btnEdit" disabled>
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button type="button" class="btn btn-danger" id="btnRemove" disabled>
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                {% endif %}
+                                
+                                {% if request.user.is_authenticated and request.user.role == 'Operator' %}
+                                    <button type="button" class="btn btn-info" id="btnCommission" disabled>
+                                        <i class="fas fa-check-circle"></i> Commission
+                                    </button>
+                                {% endif %}
+                                
+                                <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'asset:dashboard' %}'">
+                                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Asset Table -->
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover asset-table" id="assetTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th width="50">Select</th>
+                                        <th>Asset Number</th>
+                                        <th>Asset Type</th>
+                                        <th>Asset Group</th>
+                                        <th>Status</th>
+                                        <th>Provisioning Date</th>
+                                        <th>Provisioned By</th>
+                                        <th>Commissioning Date</th>
+                                        <th>Commissioned By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for asset in assets %}
+                                    <tr data-asset-id="{{ asset.id }}" data-asset-status="{{ asset.status }}">
+                                        <td class="text-center">
+                                            <input type="radio" name="selectedAsset" value="{{ asset.id }}" class="asset-radio">
+                                        </td>
+                                        <td>{{ asset.asset_number }}</td>
+                                        <td>{{ asset.get_asset_type_display }}</td>
+                                        <td>{{ asset.asset_group }}</td>
+                                        <td>
+                                            <span class="status-badge status-{{ asset.status|lower }}">
+                                                {{ asset.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ asset.provisioning_date|date:"Y-m-d" }}</td>
+                                        <td>{{ asset.provisioned_by }}</td>
+                                        <td>{{ asset.commissioning_date|date:"Y-m-d"|default:"-" }}</td>
+                                        <td>{{ asset.commissioned_by|default:"-" }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted">No assets found</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle"></i> Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this asset?</p>
+                    <p class="text-danger"><strong>This action cannot be undone.</strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        let selectedAssetId = null;
+        let selectedAssetStatus = null;
+        const userRole = "{{ request.user.role }}";
+
+        // Handle row selection
+        document.querySelectorAll('.asset-table tbody tr').forEach(row => {
+            row.addEventListener('click', function(e) {
+                // Don't trigger if clicking directly on radio button
+                if (e.target.type !== 'radio') {
+                    const radio = this.querySelector('.asset-radio');
+                    if (radio) {
+                        radio.checked = true;
+                        radio.dispatchEvent(new Event('change'));
+                    }
+                }
+            });
+        });
+
+        // Handle radio button change
+        document.querySelectorAll('.asset-radio').forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Remove selected class from all rows
+                document.querySelectorAll('.asset-table tbody tr').forEach(tr => {
+                    tr.classList.remove('selected');
+                });
+                
+                // Add selected class to current row
+                this.closest('tr').classList.add('selected');
+                
+                // Store selected asset info
+                selectedAssetId = this.value;
+                selectedAssetStatus = this.closest('tr').dataset.assetStatus;
+                
+                // Enable/disable buttons based on role and selection
+                updateButtonStates();
+            });
+        });
+
+        function updateButtonStates() {
+            if (userRole === 'Officer') {
+                // Officer can edit and remove any asset
+                const btnEdit = document.getElementById('btnEdit');
+                const btnRemove = document.getElementById('btnRemove');
+                if (btnEdit) btnEdit.disabled = !selectedAssetId;
+                if (btnRemove) btnRemove.disabled = !selectedAssetId;
+            } else if (userRole === 'Operator') {
+                // Operator can only commission PROVISIONED assets
+                const btnCommission = document.getElementById('btnCommission');
+                if (btnCommission) {
+                    btnCommission.disabled = !selectedAssetId || selectedAssetStatus !== 'PROVISIONED';
+                }
+            }
+        }
+
+        // Provision button (Officer only)
+        const btnProvision = document.getElementById('btnProvision');
+        if (btnProvision) {
+            btnProvision.addEventListener('click', function() {
+                window.location.href = "{% url 'asset:provision' %}";
+            });
+        }
+
+        // Edit button (Officer only)
+        const btnEdit = document.getElementById('btnEdit');
+        if (btnEdit) {
+            btnEdit.addEventListener('click', function() {
+                if (selectedAssetId) {
+                    window.location.href = `/edit/${selectedAssetId}/`;
+                }
+            });
+        }
+
+        // Commission button (Operator only)
+        const btnCommission = document.getElementById('btnCommission');
+        if (btnCommission) {
+            btnCommission.addEventListener('click', function() {
+                if (selectedAssetId && selectedAssetStatus === 'PROVISIONED') {
+                    window.location.href = `/commission/${selectedAssetId}/`;
+                }
+            });
+        }
+
+        // Remove button (Officer only)
+        const btnRemove = document.getElementById('btnRemove');
+        if (btnRemove) {
+            btnRemove.addEventListener('click', function() {
+                if (selectedAssetId) {
+                    // Show confirmation modal
+                    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                    deleteModal.show();
+                }
+            });
+        }
+
+        // Confirm delete
+        const confirmDeleteBtn = document.getElementById('confirmDelete');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', function() {
+                if (!selectedAssetId) return;
+                
+                // Get CSRF token
+                const csrftoken = getCookie('csrftoken');
+                
+                // Send delete request
+                fetch(`/delete/${selectedAssetId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close modal
+                        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                        
+                        // Show success message
+                        //alert(data.message);
+                        
+                        // Reload page
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the asset.');
+                });
+            });
+        }
+
+        // Helper function to get CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

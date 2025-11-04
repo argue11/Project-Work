@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --warning-color: #f6c23e;
+            --light-bg: #f8f9fc;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .otp-card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        .otp-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2a4cb3 100%);
+            padding: 2rem 1rem;
+            text-align: center;
+            color: white;
+        }
+        
+        .otp-body {
+            padding: 2.5rem;
+            background-color: white;
+        }
+        
+        .form-control {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d3e2;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .btn-verify {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2a4cb3 100%);
+            border: none;
+            padding: 0.75rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .timer {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .resend-link {
+            cursor: pointer;
+        }
+        
+        .otp-input-group {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 576px) {
+            .otp-body {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-5 col-lg-6 col-md-8">
+                <div class="card otp-card">
+                    <div class="otp-header">
+                        <h2><i class="fas fa-shield-alt me-2"></i>OTP Verification</h2>
+                        <p class="mb-0 mt-2">Enter the OTP sent to your email and phone</p>
+                    </div>
+                    <div class="card-body otp-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <!-- Timer Display -->
+                            <div class="text-center mb-4">
+                                <div class="timer">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Time remaining: <span id="countdown">{{ remaining_time }}</span> seconds
+                                </div>
+                            </div>
+
+                            <!-- Email OTP -->
+                            <div class="mb-4">
+                                <label for="email_otp" class="form-label fw-semibold">Email OTP</label>
+                                <div class="otp-input-group">
+                                    {{ form.email_otp }}
+                                </div>
+                                {% if form.email_otp.errors %}
+                                <div class="text-danger mt-1 text-center">
+                                    {% for error in form.email_otp.errors %}
+                                    <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Phone OTP -->
+                            <div class="mb-4">
+                                <label for="phone_otp" class="form-label fw-semibold">Phone OTP</label>
+                                <div class="otp-input-group">
+                                    {{ form.phone_otp }}
+                                </div>
+                                {% if form.phone_otp.errors %}
+                                <div class="text-danger mt-1 text-center">
+                                    {% for error in form.phone_otp.errors %}
+                                    <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Error Message -->
+                            {% if error %}
+                            <div class="alert alert-danger text-center" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Submit Button -->
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-verify btn-lg">
+                                    <i class="fas fa-check-circle me-2"></i>Verify OTP
+                                </button>
+                            </div>
+
+                            <!-- Resend OTP -->
+                            <div class="text-center">
+                                <span class="text-muted">Didn't receive OTP? </span>
+                                <a href="{% url 'authentication:change-password' %}" class="resend-link fw-semibold text-primary text-decoration-none">
+                                    Resend OTP
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Countdown timer
+        let timeLeft = {{ remaining_time }};
+        const countdownElement = document.getElementById('countdown');
+        
+        const countdown = setInterval(function() {
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                countdownElement.textContent = '0';
+                // Optionally disable form or show message
+            } else {
+                countdownElement.textContent = timeLeft;
+                timeLeft--;
+            }
+        }, 1000);
+        
+        // Auto-focus on first OTP field
+        document.getElementById('id_email_otp').focus();
+        
+        // Auto-tab to next field
+        document.getElementById('id_email_otp').addEventListener('input', function(e) {
+            if (this.value.length === this.maxLength) {
+                document.getElementById('id_phone_otp').focus();
+            }
+        });
+    </script>
+</body>
+</html>

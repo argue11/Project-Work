@@ -5,15 +5,11 @@ from asset.models import Asset
 from citizen_portal.models import Complaint
 import json
 
-from django.utils.decorators import method_decorator
-from authentication.permissions import permission_roles
-
-@method_decorator(permission_roles(roles=['Officer', 'Operator']),name='dispatch')    
-class MapView(View):
-    template_name = 'dashboard/map.html'
+class PublicMapView(View):
+    template_name = 'public_dashboard/public_map.html'
     
     def get(self, request, *args, **kwargs):
-        # Get COMMISSIONED assets with GPS coordinates and annotate with complaint counts
+        # Get COMMISSIONED assets with GPS coordinates and complaint counts
         commissioned_assets = Asset.objects.filter(
             status='COMMISSIONED',
             latitude__isnull=False,
@@ -30,7 +26,7 @@ class MapView(View):
         poles = commissioned_assets.filter(asset_type='POLE')
         transformers = commissioned_assets.filter(asset_type='TRANSFORMER')
         
-        # Prepare poles data for JavaScript
+        # Prepare poles data (public view - minimal info)
         poles_data = []
         for pole in poles:
             poles_data.append({
@@ -39,14 +35,11 @@ class MapView(View):
                 'lng': float(pole.longitude),
                 'asset_number': pole.asset_number,
                 'location': pole.actual_location or pole.planned_location or 'Unknown',
-                'commissioning_date': pole.commissioning_date.strftime('%Y-%m-%d') if pole.commissioning_date else 'N/A',
-                'status': pole.get_status_display(),
                 'has_complaints': pole.open_complaints > 0,
                 'open_complaints': pole.open_complaints,
-                'total_complaints': pole.total_complaints,
             })
         
-        # Prepare transformers data for JavaScript
+        # Prepare transformers data (public view - minimal info)
         transformers_data = []
         for transformer in transformers:
             transformers_data.append({
@@ -55,14 +48,11 @@ class MapView(View):
                 'lng': float(transformer.longitude),
                 'asset_number': transformer.asset_number,
                 'location': transformer.actual_location or transformer.planned_location or 'Unknown',
-                'commissioning_date': transformer.commissioning_date.strftime('%Y-%m-%d') if transformer.commissioning_date else 'N/A',
-                'actual_cost': str(transformer.actual_cost) if transformer.actual_cost else 'N/A',
                 'has_complaints': transformer.open_complaints > 0,
                 'open_complaints': transformer.open_complaints,
-                'total_complaints': transformer.total_complaints,
             })
         
-        # Calculate complaint statistics
+        # Calculate complaint statistics for chart
         all_complaints = Complaint.objects.all()
         opened_count = all_complaints.filter(status='SUBMITTED').count()
         active_count = all_complaints.filter(status__in=['INSPECTING', 'REPAIRING']).count()

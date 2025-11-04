@@ -7,12 +7,17 @@ urlpatterns = [
     # Dashboard (shows all assets with tabs)
     path('', views.AssetDashboardView.as_view(), name='dashboard'),
     
+    # NEW: Asset List (for Actions button)
+    path('list/', views.AssetListView.as_view(), name='asset_list'),
+    
     # Provisioning
     path('provision/', views.ProvisionAssetView.as_view(), name='provision'),
     
-    # These two are just aliases pointing back to dashboard with specific tabs
-    path('provisioned/', views.AssetDashboardView.as_view(), {'tab': 'provisioned'}, name='provisioned_list'),
-    path('commissioned/', views.AssetDashboardView.as_view(), {'tab': 'commissioned'}, name='commissioned_list'),
+    # NEW: Edit Asset (Officer only)
+    path('edit/<int:asset_id>/', views.EditAssetView.as_view(), name='edit_asset'),
+    
+    # NEW: Delete Asset (Officer only)
+    path('delete/<int:asset_id>/', views.delete_asset, name='delete_asset'),
     
     # Commissioning
     path('commission/<int:asset_id>/', views.CommissionAssetView.as_view(), name='commission'),

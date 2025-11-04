@@ -3,67 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Map Dashboard - Spark Scan</title>
-
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <title>Spark Scan EAM - Public Dashboard</title>
+    
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     
+    <!-- Your Custom CSS -->
+    <link rel="stylesheet" href="/static/style.css"> 
+    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- Your CSS -->
-    <link rel="stylesheet" href="/static/style.css"> 
-
 </head>
 
-<body class="map-page">
+<body>
+    <!-- Public Navigation Bar -->
+    <div id="top-bar">
+        <div id="logo">
+            <span>Spark Scan EAM</span>
+        </div>
+        <div id="menu-buttons">
+            <a href="{% url 'authentication:login' %}" class="btn-login">Login</a>
+        </div>
+    </div>
 
-    <!-- NAVBAR -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm fixed-top">
-            <div class="container-fluid">
-                <!-- Glowy Logo -->
-                <a class="navbar-brand fw-bold glowy-logo" href="{% url 'leaflet-map' %}">
-                    SPARK SCAN
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse justify-content-end" id="navbarMain">
-                    <ul class="navbar-nav ms-auto action-buttons-right">
-                        <li class="nav-item">
-                            <a href="{% url 'asset:asset_list' %}" class="nav-link action-btn">Actions</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link action-btn">Complaints</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            {% if user.is_authenticated %}
-                                <a class="nav-link dropdown-toggle username" href="#" id="userDropdown"
-                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {{ user.username }}
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a>
-                                    </li>
-                                </ul>
-                            {% else %}
-                                <a class="nav-link action-btn" href="{% url 'authentication:login' %}">Login</a>
-                            {% endif %}
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-
-
-
-    <!-- Map Container (add padding-top for fixed navbar) -->
-    <div id="map-container" style="margin-top: 56px;">
+    <!-- Map Container -->
+    <div id="map-container">
         <div id="map"></div>
 
         <!-- Chart Overlay -->
@@ -78,9 +42,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
@@ -90,7 +51,7 @@
 
         // Add dark theme tile layer
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+            attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 19
         }).addTo(map);
 
@@ -127,27 +88,26 @@
             var style = getPoleStyle(pole.has_complaints);
             var marker = L.circleMarker([pole.lat, pole.lng], style).addTo(map);
             
+            // Public popup - minimal info
             var popupContent = `
                 <div class="map-popup">
                     <div class="popup-title">POLE: ${pole.asset_number}</div>
                     <div class="popup-detail">Location: ${pole.location}</div>
-                    <div class="popup-detail">Status: ${pole.status}</div>
-                    <div class="popup-detail">Commissioned: ${pole.commissioning_date}</div>
             `;
             
             if (pole.has_complaints) {
                 popupContent += `
                     <div class="popup-complaints">
                         <span class="complaint-warning">⚠ ${pole.open_complaints} Open Complaint(s)</span>
-                        <span class="complaint-total">Total: ${pole.total_complaints} complaint(s)</span>
                     </div>`;
             } else {
-                popupContent += `<div class="popup-no-issues">✓ No Issues</div>`;
+                popupContent += `<div class="popup-no-issues">✓ No Issues Reported</div>`;
             }
             
             popupContent += `</div>`;
             marker.bindPopup(popupContent);
             
+            // Pulsing animation for complaints
             if (pole.has_complaints) {
                 setInterval(function() {
                     var currentOpacity = marker.options.fillOpacity;
@@ -161,27 +121,26 @@
             var style = getTransformerStyle(transformer.has_complaints);
             var marker = L.circleMarker([transformer.lat, transformer.lng], style).addTo(map);
             
+            // Public popup - minimal info
             var popupContent = `
                 <div class="map-popup">
                     <div class="popup-title">TRANSFORMER: ${transformer.asset_number}</div>
                     <div class="popup-detail">Location: ${transformer.location}</div>
-                    <div class="popup-detail">Cost: ₹${transformer.actual_cost}</div>
-                    <div class="popup-detail">Commissioned: ${transformer.commissioning_date}</div>
             `;
             
             if (transformer.has_complaints) {
                 popupContent += `
                     <div class="popup-complaints">
                         <span class="complaint-warning">⚠ ${transformer.open_complaints} Open Complaint(s)</span>
-                        <span class="complaint-total">Total: ${transformer.total_complaints} complaint(s)</span>
                     </div>`;
             } else {
-                popupContent += `<div class="popup-no-issues">✓ No Issues</div>`;
+                popupContent += `<div class="popup-no-issues">✓ No Issues Reported</div>`;
             }
             
             popupContent += `</div>`;
             marker.bindPopup(popupContent);
             
+            // Pulsing animation for complaints
             if (transformer.has_complaints) {
                 setInterval(function() {
                     var currentOpacity = marker.options.fillOpacity;

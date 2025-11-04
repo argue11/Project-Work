@@ -91,20 +91,16 @@
             font-weight: 500;
         }
         
-        .social-login .btn {
+        .registration-options .btn {
             border-radius: 0.5rem;
             padding: 0.6rem;
             font-weight: 500;
+            transition: all 0.3s;
         }
         
-        .btn-google {
-            background-color: #ea4335;
-            color: white;
-        }
-        
-        .btn-facebook {
-            background-color: #3b5998;
-            color: white;
+        .registration-options .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
         }
         
         .login-footer {
@@ -209,7 +205,7 @@
                                         Remember me
                                     </label>
                                 </div>
-                                <a href="#" class="text-decoration-none">Forgot Password?</a>
+                                <a href="{% url 'authentication:change-password' %}" class="text-decoration-none">Forgot Password?</a>
                             </div>
 
                             <!-- Submit Button -->
@@ -228,30 +224,24 @@
 
                             <!-- Divider -->
                             <div class="divider">
-                                <span>Or continue with</span>
+                                <span>Register as</span>
                             </div>
 
-                            <!-- Social Login -->
-                            <div class="social-login mb-4">
+                            <!-- Registration Options -->
+                            <div class="registration-options mb-4">
                                 <div class="row g-2">
                                     <div class="col-6">
-                                        <button type="button" class="btn btn-google w-100">
-                                            <i class="fab fa-google me-2"></i>Google
-                                        </button>
+                                        <a href="{% url 'authentication:register-officer' %}" class="btn btn-primary w-100">
+                                            <i class="fas fa-user-shield me-2"></i>Officer
+                                        </a>
                                     </div>
                                     <div class="col-6">
-                                        <button type="button" class="btn btn-facebook w-100">
-                                            <i class="fab fa-facebook-f me-2"></i>Facebook
-                                        </button>
+                                        <a href="{% url 'authentication:register-operator' %}" class="btn btn-success w-100">
+                                            <i class="fas fa-user-cog me-2"></i>Operator
+                                        </a>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Registration Link -->
-                            {% comment %} <div class="login-footer">
-                                <span class="text-muted">Don't have an account? </span>
-                                <a href="{% url 'register' %}" class="fw-semibold text-primary text-decoration-none">Register</a>
-                            </div> {% endcomment %}
                         </form>
                     </div>
                 </div>
