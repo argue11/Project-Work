@@ -10,7 +10,7 @@ def permission_roles(roles):
 
                 return fn(request, *args, **kwargs)
         
-            return redirect("login")
+            return redirect('authentication:login')
       
         return wrapper
     

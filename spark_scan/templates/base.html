@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Spark Scan - Authentication{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0e122b 0%, #0d0f28 50%, #223838ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        
+        .auth-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 500px;
+            width: 100%;
+            margin: auto;
+        }
+        
+        .auth-header {
+            background: linear-gradient(135deg, #0e122b 0%, #0d0f28 50%, #223838ff 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .auth-header i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .auth-header h4 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+        
+        .auth-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        .auth-body {
+            padding: 2.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #344767;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            border-color:  #223838ff;
+            box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.15);
+            outline: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0e122b 0%, #0d0f28 50%, #223838ff 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: white;
+            width: 100%;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px #223838ff;
+            opacity: 0.9;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .text-muted {
+            color: #8898aa !important;
+        }
+        
+        .info-text {
+            background-color: #e7f5ff;
+            border-left: 4px solid #5e72e4;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            color: #1971c2;
+            font-size: 0.9rem;
+        }
+        
+        #timer {
+            font-weight: 600;
+            color:  #223838ff;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .d-grid {
+            display: grid;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .bi {
+            margin-right: 0.5rem;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% block section %}{% endblock %}
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

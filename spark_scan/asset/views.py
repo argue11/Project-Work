@@ -5,41 +5,14 @@ from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods
+from django.urls import reverse
+import qrcode
+from io import BytesIO
+import base64
 
 from .models import Asset
 from .forms import ProvisioningForm, CommissioningForm
 from authentication.permissions import permission_roles
-
-
-class AssetDashboardView(View):
-    """Unified dashboard with workflow tabs"""
-    template_name = 'asset/asset_dashboard.html'
-    
-    def get(self, request, *args, **kwargs):
-        # Get active tab from query parameter
-        active_tab = kwargs.get('tab', request.GET.get('tab', 'all'))
-        
-        # Filter assets based on active tab
-        if active_tab == 'provisioned':
-            assets = Asset.objects.filter(status='PROVISIONED')
-        elif active_tab == 'commissioned':
-            assets = Asset.objects.filter(status='COMMISSIONED')
-        else:
-            assets = Asset.objects.all()
-        
-        # Get counts for stats
-        total_assets = Asset.objects.count()
-        provisioned_count = Asset.objects.filter(status='PROVISIONED').count()
-        commissioned_count = Asset.objects.filter(status='COMMISSIONED').count()
-        
-        context = {
-            'assets': assets,
-            'active_tab': active_tab,
-            'total_assets': total_assets,
-            'provisioned_count': provisioned_count,
-            'commissioned_count': commissioned_count,
-        }
-        return render(request, self.template_name, context)
 
 
 # NEW: Asset List View for Actions button
@@ -139,6 +112,59 @@ def delete_asset(request, asset_id):
         }, status=400)
 
 
+# NEW: View QR Code (All roles)
+@require_http_methods(["POST"])
+def view_qr_code(request, asset_id):
+    """Generate and return QR code for asset complaint URL (AJAX endpoint)"""
+    try:
+        asset = get_object_or_404(Asset, id=asset_id)
+        
+        # Check if asset is commissioned
+        if asset.status != 'COMMISSIONED':
+            return JsonResponse({
+                'success': False,
+                'error': 'not_commissioned',
+                'message': 'Asset is not commissioned yet. QR code can only be generated for commissioned assets.'
+            }, status=400)
+        
+        # Build the complaint registration URL
+        complaint_url = request.build_absolute_uri(
+            reverse('citizen_portal:report_step1', kwargs={'asset_id': asset.id})
+        )
+        
+        # Generate QR code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(complaint_url)
+        qr.make(fit=True)
+        
+        # Create QR code image
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Convert to base64 for sending to frontend
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+        buffer.seek(0)
+        img_base64 = base64.b64encode(buffer.getvalue()).decode()
+        
+        return JsonResponse({
+            'success': True,
+            'qr_code': f'data:image/png;base64,{img_base64}',
+            'asset_number': asset.asset_number,
+            'complaint_url': complaint_url
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=400)
+
+
 @method_decorator(permission_roles(roles=['Operator']), name='dispatch')    
 class CommissionAssetView(View):
     """View for commissioning a provisioned asset"""
@@ -172,29 +198,3 @@ class CommissionAssetView(View):
         return render(request, self.template_name, context)
 
 
-@method_decorator(permission_roles(roles=['Officer', 'Operator']), name='dispatch')    
-class ProvisionedAssetsListView(View):
-    """View to list all provisioned assets waiting for commissioning"""
-    template_name = 'asset/provisioned_list.html'
-    
-    def get(self, request):
-        assets = Asset.objects.filter(status='PROVISIONED')
-        context = {
-            'assets': assets,
-            'page_title': 'Provisioned Assets'
-        }
-        return render(request, self.template_name, context)
-
-
-@method_decorator(permission_roles(roles=['Officer', 'Operator']), name='dispatch')    
-class CommissionedAssetsListView(View):
-    """View to list all commissioned assets"""
-    template_name = 'asset/commissioned_list.html'
-    
-    def get(self, request):
-        assets = Asset.objects.filter(status='COMMISSIONED')
-        context = {
-            'assets': assets,
-            'page_title': 'Commissioned Assets'
-        }
-        return render(request, self.template_name, context)

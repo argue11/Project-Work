@@ -434,7 +434,7 @@ html.map-page body {
 /* Chart Overlay */
 #left-overlay {
     position: absolute;
-    top: 20px;
+    top: 90px;  /* was 20px — moves panel below zoom controls */
     left: 20px;
     width: 280px;
     background: rgba(20, 30, 60, 0.15);
@@ -444,6 +444,7 @@ html.map-page body {
     box-shadow: 0 6px 25px rgba(0, 255, 255, 0.15);
     z-index: 500;
 }
+
 
 #left-overlay canvas {
     width: 240px !important;
@@ -1619,4 +1620,104 @@ html.map-page body {
         margin-top: 7px;
         margin-left: 0;
     }
+}
+
+.leaflet-control-zoom {
+    margin-top: 80px !important;   /* push below overlay */
+    margin-left: 10px !important;
+}
+
+
+/* ========================================== */
+/* NAVBAR PROFILE DROPDOWN */
+/* ========================================== */
+
+/* Small Profile Icon (Navbar) */
+.profile-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.profile-icon:hover {
+    transform: scale(1.05);
+}
+
+/* Large Profile Icon (Dropdown) */
+.profile-icon-large {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 28px;
+    margin: 0 auto;
+}
+
+/* Profile Dropdown Menu */
+.profile-dropdown {
+    min-width: 280px;
+    padding: 16px 0;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: none;
+}
+
+.profile-dropdown .dropdown-header {
+    padding: 16px;
+    background: transparent;
+}
+
+.profile-dropdown .user-info {
+    margin-top: 8px;
+}
+
+.profile-dropdown .user-info strong {
+    font-size: 16px;
+    color: #1a1d29;
+}
+
+.profile-dropdown .user-info small {
+    font-size: 13px;
+}
+
+.profile-dropdown .badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    font-weight: 600;
+}
+
+.profile-dropdown .dropdown-item {
+    padding: 10px 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s;
+}
+
+.profile-dropdown .dropdown-item:hover {
+    background: #f8f9fa;
+}
+
+.profile-dropdown .dropdown-item.text-danger:hover {
+    background: #fee;
+}
+
+/* Bootstrap Icons (if not already loaded) */
+.profile-dropdown .dropdown-item i {
+    font-size: 16px;
 }

@@ -46,15 +46,11 @@ class RegisterForm(forms.ModelForm):
 
 class OTPForm(forms.Form):
 
-    email_otp = forms.CharField(max_length=4,widget=forms.TextInput(attrs={"class":"form-control form-control-lg",
+    email_otp = forms.CharField(max_length=6,widget=forms.TextInput(attrs={"class":"form-control form-control-lg",
                                                                             "placeholder":"Enter your email otp",
                                                                             "required":"required"                                                                        
                                                                            }))
     
-    phone_otp = forms.CharField(max_length=4,widget=forms.TextInput(attrs={"class":"form-control form-control-lg",
-                                                                            "placeholder":"Enter your phone otp",
-                                                                            "required":"required"                                                                        
-                                                                           }))
 class NewPasswordForm(forms.Form):
 
     password = forms.CharField(max_length=50,widget=forms.PasswordInput(attrs={"class":"form-control form-control-lg",

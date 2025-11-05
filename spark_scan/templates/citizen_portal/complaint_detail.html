@@ -1,0 +1,437 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Details - {{ complaint.complaint_id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00d4ff;
+            --dark-bg: #1a1a2e;
+            --card-bg: #16213e;
+            --accent: #0f3460;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding-top: 80px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .detail-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .detail-title {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .back-btn {
+            background: var(--accent);
+            color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-color);
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            background: var(--dark-bg);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #e0e0e0;
+            word-wrap: break-word;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-submitted { background: #ffc107; color: #000; }
+        .status-inspecting { background: #17a2b8; color: #fff; }
+        .status-repairing { background: #fd7e14; color: #fff; }
+        .status-completed { background: #28a745; color: #fff; }
+
+        .severity-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .severity-low { background: #6c757d; color: #fff; }
+        .severity-medium { background: #ffc107; color: #000; }
+        .severity-high { background: #ff6b6b; color: #fff; }
+        .severity-critical { background: #dc3545; color: #fff; }
+
+        .description-box {
+            background: var(--dark-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .description-text {
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        .images-section {
+            margin-bottom: 2rem;
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .image-card {
+            background: var(--dark-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: scale(1.02);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .progress-section {
+            margin-top: 2rem;
+        }
+
+        .progress-bar-custom {
+            height: 30px;
+            background: var(--dark-bg);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), #00b8e6);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .resolution-section {
+            background: var(--dark-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 3px solid #28a745;
+            margin-top: 2rem;
+        }
+
+        .action-buttons-bottom {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .btn-action {
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-resolve-action {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .btn-resolve-action:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--accent);
+        }
+
+        .modal-header {
+            border-bottom-color: var(--accent);
+        }
+
+        .modal-title {
+            color: var(--primary-color);
+        }
+
+        .modal-body img {
+            width: 100%;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    
+
+    <div class="container-fluid px-4 detail-container">
+        <div class="detail-card">
+            <div class="detail-header">
+                <h1 class="detail-title">
+                    <i class="fas fa-clipboard-list me-2"></i>{{ complaint.complaint_id }}
+                </h1>
+                <button onclick="history.back()" class="back-btn">
+                    <a href="{% url 'asset:asset_list' %}" class="back-btn">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Asset List
+                    </a>
+                </button>
+            </div>
+
+            <!-- Status and Progress -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">
+                        <span class="status-badge status-{{ complaint.status|lower }}">
+                            {{ complaint.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Severity</div>
+                    <div class="info-value">
+                        <span class="severity-badge severity-{{ complaint.severity|lower }}">
+                            {{ complaint.get_severity_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Submitted Date</div>
+                    <div class="info-value">{{ complaint.created_at|date:"F d, Y - h:i A" }}</div>
+                </div>
+                {% if complaint.resolved_at %}
+                <div class="info-item">
+                    <div class="info-label">Resolved Date</div>
+                    <div class="info-value">{{ complaint.resolved_at|date:"F d, Y - h:i A" }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-section">
+                <div class="info-label mb-2">Resolution Progress</div>
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" style="width: {{ progress }}%">
+                        {{ progress }}%
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asset Information -->
+            <h4 class="mt-4 mb-3" style="color: var(--primary-color);">
+                <i class="fas fa-lightbulb me-2"></i>Asset Information
+            </h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Asset Number</div>
+                    <div class="info-value">{{ complaint.asset.asset_number }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Asset Type</div>
+                    <div class="info-value">{{ complaint.asset.get_asset_type_display }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Location</div>
+                    <div class="info-value">
+                        {% if complaint.asset.actual_location %}
+                            {{ complaint.asset.actual_location }}
+                        {% else %}
+                            {{ complaint.asset.planned_location }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Coordinates</div>
+                    <div class="info-value">
+                        {% if complaint.asset.latitude and complaint.asset.longitude %}
+                            {{ complaint.asset.latitude }}, {{ complaint.asset.longitude }}
+                        {% else %}
+                            Not available
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reporter Information -->
+            <h4 class="mt-4 mb-3" style="color: var(--primary-color);">
+                <i class="fas fa-user me-2"></i>Reporter Information
+            </h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Name</div>
+                    <div class="info-value">{{ complaint.reporter_name|default:"Anonymous" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Phone Number</div>
+                    <div class="info-value">{{ complaint.reporter_phone }}</div>
+                </div>
+            </div>
+
+            <!-- Complaint Description -->
+            <h4 class="mt-4 mb-3" style="color: var(--primary-color);">
+                <i class="fas fa-file-alt me-2"></i>Complaint Description
+            </h4>
+            <div class="description-box">
+                <p class="description-text">{{ complaint.complaint_description }}</p>
+            </div>
+
+            <!-- Images -->
+            {% if complaint.image1 or complaint.image2 %}
+            <h4 class="mb-3" style="color: var(--primary-color);">
+                <i class="fas fa-images me-2"></i>Attached Images
+            </h4>
+            <div class="images-grid">
+                {% if complaint.image1 %}
+                <div class="image-card" data-bs-toggle="modal" data-bs-target="#imageModal1">
+                    <img src="{{ complaint.image1.url }}" alt="Complaint Image 1">
+                </div>
+                {% endif %}
+                {% if complaint.image2 %}
+                <div class="image-card" data-bs-toggle="modal" data-bs-target="#imageModal2">
+                    <img src="{{ complaint.image2.url }}" alt="Complaint Image 2">
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Resolution Section (if resolved) -->
+            {% if complaint.status == 'COMPLETED' and complaint.resolution_notes %}
+            <h4 class="mt-4 mb-3" style="color: #28a745;">
+                <i class="fas fa-check-circle me-2"></i>Resolution Details
+            </h4>
+            <div class="resolution-section">
+                <div class="info-label mb-2">Resolved By</div>
+                <div class="info-value mb-3">{{ complaint.resolved_by }}</div>
+                
+                <div class="info-label mb-2">Resolution Notes</div>
+                <p class="description-text">{{ complaint.resolution_notes }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            {% if user_role == 'Operator' and complaint.status != 'COMPLETED' %}
+            <div class="action-buttons-bottom">
+                <a href="{% url 'citizen_portal:complaint_resolve' complaint.complaint_id %}" 
+                   class="btn btn-action btn-resolve-action">
+                    <i class="fas fa-check-circle me-2"></i>Resolve This Complaint
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Image Modals -->
+    {% if complaint.image1 %}
+    <div class="modal fade" id="imageModal1" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Complaint Image 1</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="{{ complaint.image1.url }}" alt="Complaint Image 1">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if complaint.image2 %}
+    <div class="modal fade" id="imageModal2" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Complaint Image 2</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="{{ complaint.image2.url }}" alt="Complaint Image 2">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

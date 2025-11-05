@@ -1,0 +1,473 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resolve Complaint - {{ complaint.complaint_id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00d4ff;
+            --dark-bg: #1a1a2e;
+            --card-bg: #16213e;
+            --accent: #0f3460;
+            --success: #28a745;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding-top: 80px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .resolve-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .resolve-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .resolve-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .resolve-title {
+            color: var(--success);
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .resolve-subtitle {
+            color: #a0a0a0;
+            font-size: 1rem;
+        }
+
+        .readonly-section {
+            background: var(--dark-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid var(--primary-color);
+            opacity: 0.8;
+        }
+
+        .readonly-label {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .readonly-value {
+            color: #e0e0e0;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .readonly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .editable-section {
+            background: var(--accent);
+            padding: 2rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--success);
+            margin-top: 2rem;
+        }
+
+        .editable-label {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-control {
+            background: var(--dark-bg);
+            border: 2px solid #333;
+            color: #e0e0e0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: var(--dark-bg);
+            border-color: var(--success);
+            color: #e0e0e0;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        select.form-control option {
+            background: var(--dark-bg);
+            color: #e0e0e0;
+            padding: 0.5rem;
+        }
+
+        .char-counter {
+            text-align: right;
+            color: #a0a0a0;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-resolve-submit {
+            background: var(--success);
+            color: #fff;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 2rem auto 0;
+            transition: all 0.3s ease;
+        }
+
+        .btn-resolve-submit:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-submitted { background: #ffc107; color: #000; }
+        .status-inspecting { background: #17a2b8; color: #fff; }
+        .status-repairing { background: #fd7e14; color: #fff; }
+
+        .severity-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .severity-low { background: #6c757d; color: #fff; }
+        .severity-medium { background: #ffc107; color: #000; }
+        .severity-high { background: #ff6b6b; color: #fff; }
+        .severity-critical { background: #dc3545; color: #fff; }
+
+        .images-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .image-preview {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .image-preview img:hover {
+            transform: scale(1.05);
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid #ffc107;
+            color: #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .required-indicator {
+            color: #dc3545;
+            margin-left: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    
+
+    <div class="container-fluid px-4 resolve-container">
+        <div class="resolve-card">
+            <div class="resolve-header">
+                <h1 class="resolve-title">
+                    <i class="fas fa-edit me-2"></i>Update Complaint
+                </h1>
+                <p class="resolve-subtitle">{{ complaint.complaint_id }} - Update status and resolution details</p>
+            </div>
+
+            <div class="alert-warning">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Note:</strong> Update the status and provide details about the actions taken. The complaint will be marked as resolved when status is set to "Completed".
+            </div>
+
+            <form method="post" id="resolveForm">
+                {% csrf_token %}
+
+                <!-- Read-only Complaint Details -->
+                <h5 style="color: var(--primary-color); margin-bottom: 1rem;">
+                    <i class="fas fa-clipboard-list me-2"></i>Complaint Information
+                </h5>
+
+                <div class="readonly-grid">
+                    <div class="readonly-section">
+                        <div class="readonly-label">Complaint ID</div>
+                        <div class="readonly-value"><strong>{{ complaint.complaint_id }}</strong></div>
+                    </div>
+                    <div class="readonly-section">
+                        <div class="readonly-label">Current Status</div>
+                        <div class="readonly-value">
+                            <span class="status-badge status-{{ complaint.status|lower }}">
+                                {{ complaint.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="readonly-section">
+                        <div class="readonly-label">Severity</div>
+                        <div class="readonly-value">
+                            <span class="severity-badge severity-{{ complaint.severity|lower }}">
+                                {{ complaint.get_severity_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="readonly-section">
+                        <div class="readonly-label">Submitted Date</div>
+                        <div class="readonly-value">{{ complaint.created_at|date:"M d, Y - h:i A" }}</div>
+                    </div>
+                </div>
+
+                <!-- Asset Information -->
+                <h5 style="color: var(--primary-color); margin: 2rem 0 1rem;">
+                    <i class="fas fa-lightbulb me-2"></i>Asset Details
+                </h5>
+                <div class="readonly-grid">
+                    <div class="readonly-section">
+                        <div class="readonly-label">Asset Number</div>
+                        <div class="readonly-value">{{ complaint.asset.asset_number }}</div>
+                    </div>
+                    <div class="readonly-section">
+                        <div class="readonly-label">Asset Type</div>
+                        <div class="readonly-value">{{ complaint.asset.get_asset_type_display }}</div>
+                    </div>
+                    <div class="readonly-section">
+                        <div class="readonly-label">Location</div>
+                        <div class="readonly-value">
+                            {% if complaint.asset.actual_location %}
+                                {{ complaint.asset.actual_location }}
+                            {% else %}
+                                {{ complaint.asset.planned_location }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="readonly-section">
+                        <div class="readonly-label">Coordinates</div>
+                        <div class="readonly-value">
+                            {% if complaint.asset.latitude and complaint.asset.longitude %}
+                                {{ complaint.asset.latitude }}, {{ complaint.asset.longitude }}
+                            {% else %}
+                                Not available
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reporter Information -->
+                <h5 style="color: var(--primary-color); margin: 2rem 0 1rem;">
+                    <i class="fas fa-user me-2"></i>Reporter Information
+                </h5>
+                <div class="readonly-grid">
+                    <div class="readonly-section">
+                        <div class="readonly-label">Name</div>
+                        <div class="readonly-value">{{ complaint.reporter_name|default:"Anonymous" }}</div>
+                    </div>
+                    <div class="readonly-section">
+                        <div class="readonly-label">Phone Number</div>
+                        <div class="readonly-value">{{ complaint.reporter_phone }}</div>
+                    </div>
+                </div>
+
+                <!-- Complaint Description -->
+                <h5 style="color: var(--primary-color); margin: 2rem 0 1rem;">
+                    <i class="fas fa-file-alt me-2"></i>Complaint Description
+                </h5>
+                <div class="readonly-section">
+                    <div class="readonly-value" style="white-space: pre-wrap;">{{ complaint.complaint_description }}</div>
+                </div>
+
+                <!-- Images -->
+                {% if complaint.image1 or complaint.image2 %}
+                <h5 style="color: var(--primary-color); margin: 2rem 0 1rem;">
+                    <i class="fas fa-images me-2"></i>Attached Images
+                </h5>
+                <div class="images-preview">
+                    {% if complaint.image1 %}
+                    <div class="image-preview">
+                        <img src="{{ complaint.image1.url }}" alt="Image 1" onclick="window.open(this.src, '_blank')">
+                    </div>
+                    {% endif %}
+                    {% if complaint.image2 %}
+                    <div class="image-preview">
+                        <img src="{{ complaint.image2.url }}" alt="Image 2" onclick="window.open(this.src, '_blank')">
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Editable Resolution Section -->
+                <div class="editable-section">
+                    <label class="editable-label">
+                        <i class="fas fa-exchange-alt"></i>
+                        Update Status<span class="required-indicator">*</span>
+                    </label>
+                    <p style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem;">
+                        Update the complaint status to reflect current progress.
+                    </p>
+                    
+                    {{ form.status }}
+                    
+                    {% if form.status.errors %}
+                    <div style="color: #dc3545; margin-top: 0.5rem;">
+                        {{ form.status.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="editable-section">
+                    <label class="editable-label">
+                        <i class="fas fa-tools"></i>
+                        Resolution Details<span class="required-indicator">*</span>
+                    </label>
+                    <p style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem;">
+                        Please provide detailed information about the actions taken.
+                    </p>
+                    
+                    {{ form.resolution_notes }}
+                    
+                    {% if form.resolution_notes.errors %}
+                    <div style="color: #dc3545; margin-top: 0.5rem;">
+                        {{ form.resolution_notes.errors }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="char-counter">
+                        <span id="charCount">0</span> characters (minimum 20 required)
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="button-group">
+                    <button type="button" onclick="history.back()" class="btn btn-cancel">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn-resolve-submit">
+                        <i class="fas fa-save"></i>
+                        Update Complaint
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Character counter
+        const textarea = document.getElementById('id_resolution_notes');
+        const charCount = document.getElementById('charCount');
+
+        textarea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+
+        // Initialize character count
+        charCount.textContent = textarea.value.length;
+
+        // Form validation
+        document.getElementById('resolveForm').addEventListener('submit', function(e) {
+            const notes = textarea.value.trim();
+            const status = document.getElementById('id_status').value;
+            
+            if (notes.length < 20) {
+                e.preventDefault();
+                alert('Please provide detailed resolution notes (minimum 20 characters).');
+                textarea.focus();
+                return false;
+            }
+
+            if (!status) {
+                e.preventDefault();
+                alert('Please select a status.');
+                return false;
+            }
+
+            // Confirm before submission
+            const statusText = document.getElementById('id_status').options[document.getElementById('id_status').selectedIndex].text;
+            if (!confirm(`Are you sure you want to update this complaint status to "${statusText}"?`)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

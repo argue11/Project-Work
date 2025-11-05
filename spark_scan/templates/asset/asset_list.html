@@ -10,25 +10,41 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/static/style.css"> 
+
     
     <style>
         body {
+            /* Use a very dark, subtle glowy gradient for the background */
+            background: linear-gradient(135deg, #0f0f15 0%, #151520 100%); 
+            color: #f0f0f0; /* Light text for dark background contrast */
             padding-top: 70px;
-            background-color: #f8f9fa;
         }
         
         .glowy-logo {
-            text-shadow: 0 0 10px rgba(13, 110, 253, 0.8);
+            /* Bright cyan glow (similar to 'SPARK SCAN' in the image) */
+            color: #00ffff; 
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.7); 
             font-size: 1.5rem;
             letter-spacing: 2px;
         }
         
+        .container, .card, .modal-content {
+            background-color: #1e1e1e; /* Darker grey for content areas */
+            color: #f0f0f0;
+            border-color: #333;
+        }
+
         .action-btn:hover {
-            color: #0d6efd !important;
+            /* Use the cyan accent on hover for a striking effect */
+            color: #00ffff !important;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5); /* Optional hover glow */
         }
         
         .username {
-            color: #ffc107 !important;
+            /* Use a contrasting accent, maybe a neon yellow/green */
+            color: #ccff00 !important; 
             font-weight: 500;
         }
         
@@ -39,6 +55,7 @@
         .action-btn-group .btn {
             margin-right: 10px;
             margin-bottom: 10px;
+            /* background-color: #333; color: white; border-color: #00ffff; */ 
         }
         
         .table-responsive {
@@ -51,11 +68,13 @@
         }
         
         .asset-table tbody tr:hover {
-            background-color: #f8f9fa;
+            /* Darker hover color that contrasts the main dark background */
+            background-color: #2a2a2a; 
         }
         
         .asset-table tbody tr.selected {
-            background-color: #e3f2fd;
+            /* Highlight selection with a dark cyan background */
+            background-color: #004444; 
         }
         
         .status-badge {
@@ -63,40 +82,89 @@
             border-radius: 4px;
             font-size: 0.85rem;
             font-weight: 500;
+            color: #f0f0f0; /* Light text for all badges */
         }
         
         .status-provisioned {
-            background-color: #fff3cd;
-            color: #856404;
+            background-color: #5a5a00; /* Darker yellow/olive */
         }
         
         .status-commissioned {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: #005a00; /* Darker green */
         }
         
         .status-inactive {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: #5a0000; /* Darker red */
         }
         
         .status-under_maintenance {
-            background-color: #cfe2ff;
-            color: #084298;
+            background-color: #00427a; /* Darker blue */
         }
         
         .status-faulty {
-            background-color: #f8d7da;
-            color: #842029;
+            background-color: #4f0000; /* Darker red */
         }
+        
+        /* QR Code Modal Styles */
+        .qr-code-container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .qr-code-container img {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            margin: 20px auto;
+            display: block;
+            border: 2px solid #00ffff; /* Add the cyan accent border */
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+        }
+        
+        .qr-url-info {
+            background-color: #2a2a2a; /* Dark background for info box */
+            color: #cccccc;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 15px;
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            #qrPrintArea, #qrPrintArea * {
+                visibility: visible;
+            }
+            
+            #qrPrintArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                text-align: center;
+            }
+            
+            .modal-header, .modal-footer {
+                display: none !important;
+            }
+        }
+        
+    
+
     </style>
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm fixed-top">
+       <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm fixed-top">
         <div class="container-fluid">
             <!-- Glowy Logo -->
-            <a class="navbar-brand fw-bold glowy-logo" href="{% url 'leaflet-map' %}">
+            <a class="navbar-brand fw-bold glowy-logo" href="{% url 'dashboard:leaflet-map' %}">
                 SPARK SCAN
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -109,17 +177,44 @@
                         <a href="{% url 'asset:asset_list' %}" class="nav-link action-btn">Actions</a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link action-btn">Complaints</a>
+                        <a href="{% url 'citizen_portal:complaint_list' %}" class="nav-link action-btn">Complaints</a>
                     </li>
                     <li class="nav-item dropdown">
                         {% if user.is_authenticated %}
-                            <a class="nav-link dropdown-toggle username" href="#" id="userDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ user.username }}
+                            <!-- Profile Icon (Instead of Username Text) -->
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="profile-icon">
+                                    {{ user.username.0|upper }}
+                                </div>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            
+                            <!-- Dropdown Menu -->
+                            <ul class="dropdown-menu dropdown-menu-end profile-dropdown" aria-labelledby="userDropdown">
+                                <!-- User Info Section -->
+                                <li class="dropdown-header text-center">
+                                    <div class="profile-icon-large mb-2">
+                                        {{ user.username.0|upper }}
+                                    </div>
+                                    <div class="user-info">
+                                        <strong  style="color: #fff;">{{ user.first_name }} {{ user.last_name }}</strong>
+                                        <small class="d-block text-muted" style="color: #aaa !important;">{{ user.email }}</small>
+                                        <span class="badge bg-primary mt-1">{{ user.role }}</span>
+                                    </div>
+                                </li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                                
+                                <!-- Action Links -->
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a>
+                                    <a class="dropdown-item" href="{% url 'authentication:change-password' %}">
+                                        <i class="bi bi-key"></i> Change Password
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{% url 'authentication:logout' %}">
+                                        <i class="bi bi-box-arrow-right"></i> Logout
+                                    </a>
                                 </li>
                             </ul>
                         {% else %}
@@ -173,7 +268,12 @@
                                     </button>
                                 {% endif %}
                                 
-                                <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'asset:dashboard' %}'">
+                                <!-- View QR Button (Available for all roles) -->
+                                <button type="button" class="btn btn-warning text-white" id="btnViewQR" disabled>
+                                    <i class="fas fa-qrcode"></i> View QR
+                                </button>
+                                
+                                <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'dashboard:leaflet-map' %}'">
                                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                                 </button>
                             </div>
@@ -252,6 +352,58 @@
         </div>
     </div>
 
+    <!-- QR Code Modal -->
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="qrModalLabel">
+                        <i class="fas fa-qrcode"></i> Asset QR Code
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="qrPrintArea">
+                        <div class="qr-code-container">
+                            <h6 id="qrAssetNumber" class="text-center mb-3"></h6>
+                            <img id="qrCodeImage" src="" alt="QR Code">
+                            <div class="qr-url-info">
+                                <small class="text-muted">Complaint Registration URL:</small>
+                                <div id="qrComplaintUrl" class="mt-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btnPrintQR">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal for Non-Commissioned Assets -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="errorModalLabel">
+                        <i class="fas fa-exclamation-circle"></i> Error
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0" id="errorMessage">Asset is not commissioned yet.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -296,6 +448,12 @@
         });
 
         function updateButtonStates() {
+            // View QR button is available for all roles when an asset is selected
+            const btnViewQR = document.getElementById('btnViewQR');
+            if (btnViewQR) {
+                btnViewQR.disabled = !selectedAssetId;
+            }
+
             if (userRole === 'Officer') {
                 // Officer can edit and remove any asset
                 const btnEdit = document.getElementById('btnEdit');
@@ -334,7 +492,7 @@
         if (btnCommission) {
             btnCommission.addEventListener('click', function() {
                 if (selectedAssetId && selectedAssetStatus === 'PROVISIONED') {
-                    window.location.href = `/commission/${selectedAssetId}/`;
+                    window.location.href = `/asset/commission/${selectedAssetId}/`;
                 }
             });
         }
@@ -351,6 +509,58 @@
             });
         }
 
+        // View QR button (All roles)
+        const btnViewQR = document.getElementById('btnViewQR');
+        if (btnViewQR) {
+            btnViewQR.addEventListener('click', function() {
+                if (!selectedAssetId) return;
+                
+                // Get CSRF token
+                const csrftoken = getCookie('csrftoken');
+                
+                // Request QR code
+                fetch("{% url 'asset:view_qr' 0 %}".replace("0", selectedAssetId), { 
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Display QR code in modal
+                        document.getElementById('qrAssetNumber').textContent = `Asset: ${data.asset_number}`;
+                        document.getElementById('qrCodeImage').src = data.qr_code;
+                        document.getElementById('qrComplaintUrl').textContent = data.complaint_url;
+                        
+                        // Show modal
+                        const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+                        qrModal.show();
+                    } else {
+                        // Show error modal
+                        document.getElementById('errorMessage').textContent = data.message;
+                        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                        errorModal.show();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('errorMessage').textContent = 'An error occurred while generating QR code.';
+                    const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                    errorModal.show();
+                });
+            });
+        }
+
+        // Print QR Code button
+        const btnPrintQR = document.getElementById('btnPrintQR');
+        if (btnPrintQR) {
+            btnPrintQR.addEventListener('click', function() {
+                window.print();
+            });
+        }
+
         // Confirm delete
         const confirmDeleteBtn = document.getElementById('confirmDelete');
         if (confirmDeleteBtn) {
@@ -361,7 +571,7 @@
                 const csrftoken = getCookie('csrftoken');
                 
                 // Send delete request
-                fetch(`/delete/${selectedAssetId}/`, {
+                fetch(`/asset/delete/${selectedAssetId}/`, {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': csrftoken,
@@ -373,9 +583,6 @@
                     if (data.success) {
                         // Close modal
                         bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
-                        
-                        // Show success message
-                        //alert(data.message);
                         
                         // Reload page
                         window.location.reload();

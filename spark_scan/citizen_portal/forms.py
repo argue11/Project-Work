@@ -8,6 +8,7 @@ class PhoneNumberForm(forms.Form):
             'class': 'form-input',
             'placeholder': '+91 98765 43210',
             'pattern': r'^\+?[1-9]\d{9,14}$'
+
         }),
         label='Mobile Number',
         help_text='Enter with country code (e.g., +917559942623)'
@@ -66,3 +67,66 @@ class ComplaintForm(forms.ModelForm):
             'image2': 'Photo 2 (Optional)',
             'reporter_name': 'Your Name (Optional)'
         }
+
+
+class ComplaintResolutionForm(forms.ModelForm):
+    """Form for operators to resolve complaints"""
+    class Meta:
+        model = Complaint
+        fields = ['status', 'resolution_notes']
+        widgets = {
+            'status': forms.Select(attrs={
+                'class': 'form-control status-select',
+                'required': True
+            }),
+            'resolution_notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter the resolution steps taken...\n\nExample:\n- Inspected the pole and found loose connections\n- Tightened all electrical connections\n- Replaced damaged wire insulation\n- Tested the light - now working properly\n- Area secured and cleaned',
+                'rows': 8,
+                'required': True
+            })
+        }
+        labels = {
+            'status': 'Update Status',
+            'resolution_notes': 'Resolution Details'
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customize status choices to show only valid progression
+        current_status = self.instance.status if self.instance else 'SUBMITTED'
+        
+        # Define valid status transitions
+        if current_status == 'SUBMITTED':
+            self.fields['status'].choices = [
+                ('INSPECTING', 'Inspecting'),
+                ('REPAIRING', 'Repairing'),
+                ('COMPLETED', 'Completed'),
+            ]
+        elif current_status == 'INSPECTING':
+            self.fields['status'].choices = [
+                ('INSPECTING', 'Inspecting'),
+                ('REPAIRING', 'Repairing'),
+                ('COMPLETED', 'Completed'),
+            ]
+        elif current_status == 'REPAIRING':
+            self.fields['status'].choices = [
+                ('REPAIRING', 'Repairing'),
+                ('COMPLETED', 'Completed'),
+            ]
+        else:
+            self.fields['status'].choices = [
+                ('COMPLETED', 'Completed'),
+            ]
+    
+    def clean_resolution_notes(self):
+        notes = self.cleaned_data.get('resolution_notes')
+        if not notes or len(notes.strip()) < 20:
+            raise forms.ValidationError('Please provide detailed resolution notes (minimum 20 characters).')
+        return notes
+    
+    def clean_status(self):
+        status = self.cleaned_data.get('status')
+        if not status:
+            raise forms.ValidationError('Please select a status.')
+        return status

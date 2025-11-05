@@ -4,10 +4,12 @@ from django.contrib import messages
 from django.utils import timezone
 from django.urls import reverse
 from django.http import JsonResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import models
 import threading
 
 from .models import Complaint
-from .forms import PhoneNumberForm, OTPVerificationForm, ComplaintForm
+from .forms import PhoneNumberForm, OTPVerificationForm, ComplaintForm, ComplaintResolutionForm
 from asset.models import Asset
 from authentication.models import OTP
 from authentication.utility import generate_otp, send_phone_sms, send_complaint_confirmation_whatsapp
@@ -245,5 +247,127 @@ class TrackComplaintView(View):
         context = {
             'complaint': complaint,
             'progress': progress
+        }
+        return render(request, self.template_name, context)
+
+
+# ============ INTERNAL COMPLAINT MANAGEMENT VIEWS ============
+
+class ComplaintListView(LoginRequiredMixin, View):
+    """Internal complaint list for officers and operators"""
+    template_name = 'citizen_portal/complaint_list.html'
+    
+    def get(self, request):
+        complaints = Complaint.objects.select_related('asset').all()
+        
+        # Filter options
+        status_filter = request.GET.get('status', '')
+        severity_filter = request.GET.get('severity', '')
+        search_query = request.GET.get('search', '')
+        
+        if status_filter:
+            complaints = complaints.filter(status=status_filter)
+        
+        if severity_filter:
+            complaints = complaints.filter(severity=severity_filter)
+        
+        if search_query:
+            complaints = complaints.filter(
+                models.Q(complaint_id__icontains=search_query) |
+                models.Q(asset__asset_number__icontains=search_query) |
+                models.Q(reporter_phone__icontains=search_query)
+            )
+        
+        # Get statistics
+        stats = {
+            'total': Complaint.objects.count(),
+            'submitted': Complaint.objects.filter(status='SUBMITTED').count(),
+            'inspecting': Complaint.objects.filter(status='INSPECTING').count(),
+            'repairing': Complaint.objects.filter(status='REPAIRING').count(),
+            'completed': Complaint.objects.filter(status='COMPLETED').count(),
+        }
+        
+        context = {
+            'complaints': complaints,
+            'stats': stats,
+            'user_role': request.user.role,
+            'status_filter': status_filter,
+            'severity_filter': severity_filter,
+            'search_query': search_query,
+        }
+        return render(request, self.template_name, context)
+
+
+class ComplaintDetailView(LoginRequiredMixin, View):
+    """View complaint details - accessible to all authenticated users"""
+    template_name = 'citizen_portal/complaint_detail.html'
+    
+    def get(self, request, complaint_id):
+        complaint = get_object_or_404(Complaint, complaint_id=complaint_id)
+        
+        # Calculate progress
+        status_progress = {
+            'SUBMITTED': 25,
+            'INSPECTING': 50,
+            'REPAIRING': 75,
+            'COMPLETED': 100
+        }
+        progress = status_progress.get(complaint.status, 0)
+        
+        context = {
+            'complaint': complaint,
+            'progress': progress,
+            'user_role': request.user.role,
+        }
+        return render(request, self.template_name, context)
+
+
+class ComplaintResolveView(LoginRequiredMixin, View):
+    """Resolve complaint - only for operators"""
+    template_name = 'citizen_portal/complaint_resolve.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Only operators can access this view
+        if request.user.role != 'Operator':
+            messages.error(request, 'Only operators can resolve complaints.')
+            return redirect('citizen_portal:complaint_list')
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get(self, request, complaint_id):
+        complaint = get_object_or_404(Complaint, complaint_id=complaint_id)
+        
+        # Don't allow resolving already completed complaints
+        if complaint.status == 'COMPLETED':
+            messages.warning(request, 'This complaint is already resolved.')
+            return redirect('citizen_portal:complaint_detail', complaint_id=complaint_id)
+        
+        form = ComplaintResolutionForm(instance=complaint)
+        
+        context = {
+            'complaint': complaint,
+            'form': form,
+        }
+        return render(request, self.template_name, context)
+    
+    def post(self, request, complaint_id):
+        complaint = get_object_or_404(Complaint, complaint_id=complaint_id)
+        form = ComplaintResolutionForm(request.POST, instance=complaint)
+        
+        if form.is_valid():
+            complaint = form.save(commit=False)
+            
+            # Only mark as resolved if status is COMPLETED
+            if complaint.status == 'COMPLETED':
+                complaint.resolved_by = request.user.username
+                complaint.resolved_at = timezone.now()
+            
+            complaint.save()
+            
+            messages.success(request, f'Complaint {complaint.complaint_id} status updated to {complaint.get_status_display()}.')
+            return redirect('citizen_portal:complaint_detail', complaint_id=complaint.complaint_id)
+        
+        context = {
+            'complaint': complaint,
+            'form': form,
         }
         return render(request, self.template_name, context)

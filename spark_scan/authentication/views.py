@@ -29,7 +29,7 @@ class LoginView(View):
 
             if user:
                 login(request, user)
-                return redirect("leaflet-map")
+                return redirect("dashboard:leaflet-map") 
             
             msg = "Invalid Credentials"
 
@@ -39,7 +39,7 @@ class LoginView(View):
 class LogoutView(View):
     def get(self, request, *args, **kwargs):
         logout(request)
-        return redirect("public_dashboard:public_map")
+        return redirect('public_dashboard:public_map')
 
 
 # ========================================
@@ -134,32 +134,31 @@ class ChangePasswordView(View):
         form = self.form_class()
 
         # Generate OTP
-        email_otp, phone_otp = generate_otp()  # Assuming this returns tuple
+        email_otp = generate_otp()
 
         # Get or create OTP record for user
         otp, status = OTP.objects.get_or_create(user=request.user)
         otp.email_otp = email_otp
-        otp.phone_otp = phone_otp
         otp.verified = False
         otp.save()
 
         # Send email OTP
         subject = 'OTP For Change Password'
         template = 'email/email-otp.html'
-        context = {'otp': email_otp, 'request': request}
+        context_email = {'otp': email_otp, 'request': request}
         recipient = request.user.email
-
-        thread = threading.Thread(target=sending_email, args=(subject, template, context, recipient))
+        thread = threading.Thread(target=sending_email, args=(subject, template, context_email, recipient))
         thread.start()
 
-        # Send SMS OTP
-        send_phone_sms(request.user.phone_num, phone_otp)
+        # Store OTP timestamp for countdown
+        request.session['otp_time'] = timezone.now().timestamp()
 
-        request.session["otp_time"] = timezone.now().timestamp()
-        remaining_time = 600
-        
-        data = {'form': form, "remaining_time": remaining_time}
-        return render(request, 'authentication/otp.html', context=data)
+        # ✅ THIS WAS MISSING — must return HttpResponse
+        context = {
+            'form': form,
+            'remaining_time': 600  # 10-minute countdown
+        }
+        return render(request, 'authentication/otp.html', context)
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
@@ -167,7 +166,6 @@ class ChangePasswordView(View):
         if form.is_valid():
             validated_data = form.cleaned_data
             email_otp = validated_data.get("email_otp")
-            phone_otp = validated_data.get("phone_otp")
             otp_time = request.session.get("otp_time")
 
             error = None
@@ -175,7 +173,6 @@ class ChangePasswordView(View):
             try:
                 otp = OTP.objects.get(user=request.user)
                 db_email_otp = otp.email_otp
-                db_phone_otp = otp.phone_otp
 
                 if otp_time:
                     elapsed = timezone.now().timestamp() - otp_time
@@ -183,7 +180,7 @@ class ChangePasswordView(View):
 
                     if elapsed > 600:
                         error = "OTP expired, request a new one"
-                    elif email_otp == db_email_otp and phone_otp == db_phone_otp:
+                    elif email_otp == db_email_otp:
                         request.session.pop("otp_time")
                         otp.verified = True
                         otp.save()
@@ -193,8 +190,13 @@ class ChangePasswordView(View):
             except OTP.DoesNotExist:
                 error = "OTP not found"
 
-        data = {'form': form, "remaining_time": remaining_time if 'remaining_time' in locals() else 600, "error": error}
+        data = {
+            'form': form,
+            "remaining_time": remaining_time if 'remaining_time' in locals() else 600,
+            "error": error
+        }
         return render(request, 'authentication/otp.html', context=data)
+
 
 @method_decorator(permission_roles(roles=['Officer', 'Operator']), name="dispatch")
 class NewPasswordView(View):

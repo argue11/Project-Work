@@ -4,8 +4,6 @@ from . import views
 app_name = 'asset'
 
 urlpatterns = [
-    # Dashboard (shows all assets with tabs)
-    path('', views.AssetDashboardView.as_view(), name='dashboard'),
     
     # NEW: Asset List (for Actions button)
     path('list/', views.AssetListView.as_view(), name='asset_list'),
@@ -18,6 +16,9 @@ urlpatterns = [
     
     # NEW: Delete Asset (Officer only)
     path('delete/<int:asset_id>/', views.delete_asset, name='delete_asset'),
+    
+    # NEW: View QR Code (All roles)
+    path('view-qr/<int:asset_id>/', views.view_qr_code, name='view_qr'),
     
     # Commissioning
     path('commission/<int:asset_id>/', views.CommissionAssetView.as_view(), name='commission'),
